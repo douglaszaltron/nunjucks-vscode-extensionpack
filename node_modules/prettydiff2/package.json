@@ -1,0 +1,43 @@
+{
+    "author"              : {
+        "email": "info@prettydiff.com",
+        "name" : "Austin Cheney",
+        "url"  : "http://prettydiff.com/"
+    },
+    "bin"                 : "./bin/prettydiff",
+    "bugs"                : {
+        "email": "info@prettydiff.com",
+        "url"  : "https://github.com/prettydiff/prettydiff/issues"
+    },
+    "description"         : "Latest version of Pretty Diff for use in Atom Beautify to field test it in the wild before moving on to Pretty Diff 3.",
+    "homepage"            : "http://prettydiff.com/",
+    "keywords"            : [
+        "diff",
+        "prettydiff",
+        "pretty diff",
+        "pretty print",
+        "pretty-print",
+        "beautify",
+        "minify",
+        "xml",
+        "html",
+        "css",
+        "jsx",
+        "es6",
+        "javascript"
+    ],
+    "license"             : "CC0-1.0",
+    "main"                : "prettydiff.js",
+    "maintainers"         : [
+        {
+            "email": "info@prettydiff.com",
+            "name" : "austincheney"
+        }
+    ],
+    "name"                : "prettydiff2",
+    "repository"          : {
+        "type": "git",
+        "url" : "https://github.com/prettydiff/prettydiff"
+    },
+    "version"             : "2.2.7"
+}
