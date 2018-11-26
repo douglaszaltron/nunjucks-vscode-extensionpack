@@ -1,18 +1,14 @@
 "use strict";
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+
 import * as vscode from "vscode";
 
 import * as prettydiff from "prettydiff2/prettydiff";
 
 export function createHover(snippet: any, type: any) {
   const example = typeof snippet.example == "undefined" ? "" : snippet.example;
-  const description =
-    typeof snippet.description == "undefined" ? "" : snippet.description;
-  return new vscode.Hover({
-    language: type,
-    value: description + "\n\n" + example
-  });
+  const description = typeof snippet.description == "undefined" ? "" : snippet.description;
+
+  return new vscode.Hover({ language: type, value: description + "\n\n" + example });
 }
 
 const prettyDiff = (document: any, range: any, options: any) => {
@@ -29,12 +25,11 @@ const prettyDiff = (document: any, range: any, options: any) => {
     insize,
     inchar
   });
+
   result.push(vscode.TextEdit.replace(range, newText));
   return result;
 };
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   vscode.languages.registerDocumentFormattingEditProvider("njk", {
     provideDocumentFormattingEdits(document, options, token) {
@@ -44,12 +39,11 @@ export function activate(context: vscode.ExtensionContext) {
         document.lineAt(document.lineCount - 1).text.length
       );
       const rng = new vscode.Range(start, end);
+
       return prettyDiff(document, rng, options);
     }
   });
 
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
   console.log(
     'Congratulations, your extension "nunjucks-vscode-extensionpack" is now active!'
   );

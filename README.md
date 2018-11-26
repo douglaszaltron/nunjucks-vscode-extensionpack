@@ -37,6 +37,13 @@ This is the nunjucks supporting extension for vscode with complete features.
 | `or`        | `or`                                             |
 | `pipe`      | `pipe`                                           |
 
+## Install extension in marketplace *(recomended method)*
+To install extension directly from VSCode you need to proceed with theese four simple steps:
+
+1. Go to *View > Command Palette* (Mac OSX: `cmd+shift+P`, Windows: `ctrl+shift+P`)
+2. Run the following command in the Command Palette field: `>ext install extension` and hit enter.
+3. Then type `nunjucks-vscode-extensionpack` and hit enter.
+4. After instalation is complete restart the Code app and you are all set up for start writing nunjucks templates in VSCode.
 
 ## install extension manually
 To install extension manually you need to proceed with theese five steps:
