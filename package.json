@@ -18,8 +18,9 @@
     "vscode": "^1.28.0"
   },
   "activationEvents": [
-		"*"
-	],
+    "onCommand:extension.sayHello",
+    "onLanguage:njk"
+  ],
   "main": "./out/extension",
   "contributes": {
     "snippets": [
