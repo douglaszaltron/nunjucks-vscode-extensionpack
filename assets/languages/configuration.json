@@ -3,12 +3,14 @@
     "blockComment": ["{#", "#}"],
     "lineComment": ["{#", "#}"]
   },
-  "brackets": [["{%", "%}"], ["{{", "}}"]],
+  "brackets": [["{%", "%}"], ["{{", "}}"], ["[", "]"], ["(", ")"]],
   "autoClosingPairs": [
     ["{%", "%}"],
     ["{{", "}}"],
     ["(", ")"],
     ["\"", "\""],
+    { "open": "[", "close": "]", "notIn": ["string", "comment"] },
+    { "open": "`", "close": "`", "notIn": ["string", "comment"] },
     { "open": "'", "close": "'", "notIn": ["string", "comment"] },
     { "open": "{#", "close": "#}", "notIn": ["string", "comment"] }
   ],
@@ -18,5 +20,9 @@
     ["(", ")"],
     ["\"", "\""],
     ["'", "'"]
-  ]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "{%(-|\\s)*(if|elif|else|for|block|macro|filter|raw|call|asyncEach|asyncAll)\\b",
+    "decreaseIndentPattern": "{%(-|\\s)*(endif|endfor|endblock|endmacro|endfilter|endraw|endcall|endeach|endall|elif|else)\\b"
+  }
 }

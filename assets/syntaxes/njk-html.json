@@ -2,7 +2,7 @@
   "name": "njk-html",
   "scopeName": "text.html.njk",
   "comment": "Nunjucks Template",
-  "fileTypes": ["nj", "njk", "html"],
+  "fileTypes": ["nj", "njk", "html", "tpl", "nunjucks", "nunjs", "template", "tmpl", "htm"],
   "firstLineMatch": "^{% extends [\"'][^\"']+[\"'] %}",
   "foldingStartMarker": "(<(?i:(head|table|tr|div|style|script|ul|ol|form|dl))\\b.*?>|{%\\s*(block|filter|for|if|macro|raw))",
   "foldingStopMarker": "(</(?i:(head|table|tr|div|style|script|ul|ol|form|dl))\\b.*?>|{%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw)\\s*%})",
@@ -11,7 +11,45 @@
       "include": "source.njk"
     },
     {
+      "include": "#alpine-attribute"
+    },
+    {
+      "include": "#alpine-shorthand-bind"
+    },
+    {
+      "include": "#alpine-shorthand-event"
+    },
+    {
       "include": "text.html.basic"
     }
-  ]
+  ],
+  "repository": {
+    "alpine-attribute": {
+      "comment": "AlpineJS directives: x-data, x-show, x-model, x-transition, etc.",
+      "match": "(?<![\\w-])(x-[a-zA-Z][a-zA-Z0-9-]*(?:\\.[a-zA-Z][a-zA-Z0-9-]*)*(?::[a-zA-Z][a-zA-Z0-9-]*)?)(?=\\s*=|\\s|>|/>)",
+      "captures": {
+        "0": {
+          "name": "entity.other.attribute-name.alpine.njk"
+        }
+      }
+    },
+    "alpine-shorthand-bind": {
+      "comment": "AlpineJS x-bind shorthand: :class, :value, :disabled, etc.",
+      "match": "(?<=[\\s<])(:[a-zA-Z][a-zA-Z0-9-]*(?:\\.[a-zA-Z][a-zA-Z0-9-]*)?)(?=\\s*=|\\s|>|/>)",
+      "captures": {
+        "0": {
+          "name": "entity.other.attribute-name.alpine.njk"
+        }
+      }
+    },
+    "alpine-shorthand-event": {
+      "comment": "AlpineJS x-on shorthand: @click, @keydown.enter, @click.outside, etc.",
+      "match": "(?<=[\\s<])(@[a-zA-Z][a-zA-Z0-9-]*(?:\\.[a-zA-Z][a-zA-Z0-9-]*)*)(?=\\s*=|\\s|>|/>)",
+      "captures": {
+        "0": {
+          "name": "entity.other.attribute-name.alpine.njk"
+        }
+      }
+    }
+  }
 }

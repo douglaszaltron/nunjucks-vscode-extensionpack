@@ -2,64 +2,150 @@
 
 import * as vscode from "vscode";
 
-import * as prettydiff from "prettydiff2/prettydiff";
+import { html as beautifyHtml } from "js-beautify";
+import * as jsbeautify from "js-beautify";
 
-export function createHover(snippet: any, type: any) {
-  const example = typeof snippet.example == "undefined" ? "" : snippet.example;
-  const description = typeof snippet.description == "undefined" ? "" : snippet.description;
+const LANGUAGE_ID = "njk";
 
-  return new vscode.Hover({ language: type, value: description + "\n\n" + example });
+const NUNJUCKS_BLOCK_TAGS = [
+  "if", "elif", "else", "endif",
+  "for", "endfor",
+  "block", "endblock",
+  "macro", "endmacro",
+  "filter", "endfilter",
+  "raw", "endraw",
+  "call", "endcall",
+  "asyncEach", "endeach", "asyncAll",
+  "set", "include", "import", "from", "extends",
+];
+
+export function preprocessNunjucks(source: string): string {
+  const blockTagsPattern = NUNJUCKS_BLOCK_TAGS.join("|");
+  const tagOpen = "{%[-]?\\s*(?:" + blockTagsPattern + ")\\b[\\s\\S]*?%}";
+
+  source = source.replace(
+    new RegExp("(?<=>)(?=\\s*" + tagOpen + ")", "g"),
+    "\n"
+  );
+  source = source.replace(
+    new RegExp("(" + tagOpen + ")(?=\\s*<)", "g"),
+    "$1\n"
+  );
+  source = source.replace(
+    new RegExp("(" + tagOpen + ")(?=\\s*" + tagOpen + ")", "g"),
+    "$1\n"
+  );
+  return source;
 }
 
-const prettyDiff = (document: any, range: any, options: any) => {
-  const result = [];
-  const content = document.getText(range);
-  const workspaceConfig = vscode.workspace.getConfiguration("editor");
-  const activeEditorOptions = vscode.window.activeTextEditor.options;
-  const insize = activeEditorOptions.tabSize || workspaceConfig.tabSize;
-  const inchar = activeEditorOptions.insertSpaces ? " " : "\t";
-  const newText = prettydiff({
-    source: content,
-    lang: "twig",
-    mode: "beautify",
-    insize,
-    inchar
-  });
+function getBeautifyOptions(
+  formattingOptions: vscode.FormattingOptions
+): jsbeautify.HTMLBeautifyOptions {
+  const config = vscode.workspace.getConfiguration("nunjucksFormatter");
 
-  result.push(vscode.TextEdit.replace(range, newText));
-  return result;
-};
+  const indentSize = formattingOptions.tabSize || 2;
+  const indentWithTabs = !formattingOptions.insertSpaces;
+
+  return {
+    indent_size: indentSize,
+    indent_char: indentWithTabs ? "\t" : " ",
+    indent_with_tabs: indentWithTabs,
+    wrap_line_length: config.get<number>("wrapLineLength", 120),
+    wrap_attributes: config.get<jsbeautify.HTMLBeautifyOptions["wrap_attributes"]>(
+      "wrapAttributes",
+      "auto"
+    ),
+    wrap_attributes_indent_size: indentSize,
+    templating: ["django"],
+    indent_inner_html: config.get<boolean>("indentInnerHtml", true),
+    indent_body_inner_html: config.get<boolean>("indentBodyInnerHtml", true),
+    indent_head_inner_html: config.get<boolean>("indentHeadInnerHtml", true),
+    preserve_newlines: config.get<boolean>("preserveNewlines", true),
+    max_preserve_newlines: config.get<number>("maxPreserveNewlines", 2),
+    end_with_newline: config.get<boolean>("endWithNewline", true),
+    indent_handlebars: config.get<boolean>("indentHandlebars", false),
+    extra_liners: config.get<string[]>("extraLiners", [
+      "html",
+      "/html",
+      "head",
+      "/head",
+      "body",
+      "/body",
+      "section",
+      "/section",
+    ]),
+    unformatted: config.get<string[]>("unformatted", [
+      "a", "abbr", "area", "audio", "b", "bdi", "bdo", "br", "canvas",
+      "cite", "code", "data", "datalist", "del", "dfn", "em", "embed",
+      "i", "iframe", "img", "input", "ins", "kbd", "label", "map",
+      "mark", "math", "meter", "noscript", "object", "output", "progress",
+      "q", "ruby", "s", "samp", "select", "slot", "small", "span",
+      "strong", "sub", "sup", "svg", "template", "textarea", "time",
+      "u", "var", "video", "wbr",
+    ]),
+    content_unformatted: config.get<string[]>("contentUnformatted", [
+      "pre", "textarea",
+    ]),
+    inline_custom_elements: config.get<boolean>("inlineCustomElements", true),
+  };
+}
+
+export function formatText(
+  source: string,
+  formattingOptions: vscode.FormattingOptions
+): string {
+  const config = vscode.workspace.getConfiguration("nunjucksFormatter");
+  const preprocess = config.get<boolean>("preprocessNunjucks", true);
+  const input = preprocess ? preprocessNunjucks(source) : source;
+  const options = getBeautifyOptions(formattingOptions);
+  return beautifyHtml(input, options);
+}
+
+function fullDocumentRange(document: vscode.TextDocument): vscode.Range {
+  const lastLineId = document.lineCount - 1;
+  return new vscode.Range(
+    0,
+    0,
+    lastLineId,
+    document.lineAt(lastLineId).text.length
+  );
+}
 
 export function activate(context: vscode.ExtensionContext) {
-  vscode.languages.registerDocumentFormattingEditProvider("njk", {
-    provideDocumentFormattingEdits(document, options, token) {
-      const start = new vscode.Position(0, 0);
-      const end = new vscode.Position(
-        document.lineCount - 1,
-        document.lineAt(document.lineCount - 1).text.length
-      );
-      const rng = new vscode.Range(start, end);
+  const formattingEditProvider: vscode.DocumentFormattingEditProvider = {
+    provideDocumentFormattingEdits(document, options) {
+      const text = document.getText();
+      const formatted = formatText(text, options);
+      return [vscode.TextEdit.replace(fullDocumentRange(document), formatted)];
+    },
+  };
 
-      return prettyDiff(document, rng, options);
-    }
-  });
+  const rangeFormattingEditProvider: vscode.DocumentRangeFormattingEditProvider = {
+    provideDocumentRangeFormattingEdits(document, range, options) {
+      const text = document.getText(range);
+      const formatted = formatText(text, options);
+      return [vscode.TextEdit.replace(range, formatted)];
+    },
+  };
 
-  console.log(
-    'Congratulations, your extension "nunjucks-vscode-extensionpack" is now active!'
+  context.subscriptions.push(
+    vscode.languages.registerDocumentFormattingEditProvider(
+      LANGUAGE_ID,
+      formattingEditProvider
+    )
   );
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with  registerCommand
-  // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand("extension.sayHello", () => {
-    // The code you place here will be executed every time your command is executed
+  context.subscriptions.push(
+    vscode.languages.registerDocumentRangeFormattingEditProvider(
+      LANGUAGE_ID,
+      rangeFormattingEditProvider
+    )
+  );
 
-    // Display a message box to the user
-    vscode.window.showInformationMessage("Hello World!");
-  });
-
-  context.subscriptions.push(disposable);
+  return {
+    formatText,
+    preprocessNunjucks,
+  };
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}

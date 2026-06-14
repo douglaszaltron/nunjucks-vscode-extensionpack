@@ -1,8 +1,8 @@
 {
   "name": "nunjucks-vscode-extensionpack",
   "displayName": "Nunjucks VSCode Extension Pack",
-  "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
-  "version": "0.0.1",
+  "description": "Formatting, Syntax Highlighting, Snippets for Nunjucks — with AlpineJS & Tailwind support",
+  "version": "0.1.0",
   "author": "Douglas Zaltron",
   "license": "MIT",
   "repository": {
@@ -12,15 +12,31 @@
   "publisher": "douglaszaltron",
   "icon": "images/icon.png",
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Formatters",
+    "Snippets"
+  ],
+  "keywords": [
+    "nunjucks",
+    "njk",
+    "alpinejs",
+    "tailwindcss",
+    "html",
+    "template"
   ],
   "engines": {
-    "vscode": "^1.28.0"
+    "vscode": "^1.82.0"
   },
-  "activationEvents": [
-    "onCommand:extension.sayHello",
-    "onLanguage:njk"
+  "extensionKind": [
+    "ui",
+    "workspace"
   ],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
   "main": "./out/extension",
   "contributes": {
     "snippets": [
@@ -45,7 +61,7 @@
           ".njk",
           ".html",
           ".htm",
-          "template",
+          ".template",
           ".tmpl",
           ".tpl"
         ],
@@ -63,22 +79,181 @@
         "scopeName": "text.html.njk",
         "path": "./assets/syntaxes/njk-html.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Nunjucks Formatter",
+      "properties": {
+        "nunjucksFormatter.wrapLineLength": {
+          "type": "number",
+          "default": 120,
+          "description": "Panjang maksimum baris sebelum atribut (seperti class Tailwind) dibungkus ke baris berikutnya."
+        },
+        "nunjucksFormatter.wrapAttributes": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "force",
+            "force-aligned",
+            "force-expand-multiline",
+            "aligned-multiple",
+            "preserve",
+            "preserve-aligned"
+          ],
+          "description": "Strategy pembungkusan atribut HTML. \"auto\" hanya membungkus saat melebihi wrapLineLength (ideal untuk Tailwind)."
+        },
+        "nunjucksFormatter.preprocessNunjucks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Tarik tag block Nunjucks ({% if %}, {% for %}, {% block %}, dll.) ke baris sendiri sebelum diformat agar indentasi rapi."
+        },
+        "nunjucksFormatter.indentInnerHtml": {
+          "type": "boolean",
+          "default": true,
+          "description": "Indentasi konten di dalam <html> dan <body>."
+        },
+        "nunjucksFormatter.indentBodyInnerHtml": {
+          "type": "boolean",
+          "default": true,
+          "description": "Indentasi konten di dalam <body>."
+        },
+        "nunjucksFormatter.indentHeadInnerHtml": {
+          "type": "boolean",
+          "default": true,
+          "description": "Indentasi konten di dalam <head>."
+        },
+        "nunjucksFormatter.preserveNewlines": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pertahankan baris kosong yang sudah ada."
+        },
+        "nunjucksFormatter.maxPreserveNewlines": {
+          "type": "number",
+          "default": 2,
+          "description": "Jumlah maksimum baris kosong berturut-turut yang dipertahankan."
+        },
+        "nunjucksFormatter.endWithNewline": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pastikan file diakhiri dengan baris baru."
+        },
+        "nunjucksFormatter.indentHandlebars": {
+          "type": "boolean",
+          "default": false,
+          "description": "Indentasi tag Handlebars ({{# }} / {{/ }})."
+        },
+        "nunjucksFormatter.extraLiners": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "html",
+            "/html",
+            "head",
+            "/head",
+            "body",
+            "/body",
+            "section",
+            "/section"
+          ],
+          "description": "Tag HTML yang mendapat baris kosong tambahan sebelumnya."
+        },
+        "nunjucksFormatter.unformatted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "a",
+            "abbr",
+            "area",
+            "audio",
+            "b",
+            "bdi",
+            "bdo",
+            "br",
+            "canvas",
+            "cite",
+            "code",
+            "data",
+            "datalist",
+            "del",
+            "dfn",
+            "em",
+            "embed",
+            "i",
+            "iframe",
+            "img",
+            "input",
+            "ins",
+            "kbd",
+            "label",
+            "map",
+            "mark",
+            "math",
+            "meter",
+            "noscript",
+            "object",
+            "output",
+            "progress",
+            "q",
+            "ruby",
+            "s",
+            "samp",
+            "select",
+            "slot",
+            "small",
+            "span",
+            "strong",
+            "sub",
+            "sup",
+            "svg",
+            "template",
+            "textarea",
+            "time",
+            "u",
+            "var",
+            "video",
+            "wbr"
+          ],
+          "description": "Tag inline yang tidak diformat ulang (kontennya tetap pada satu baris)."
+        },
+        "nunjucksFormatter.contentUnformatted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "pre",
+            "textarea"
+          ],
+          "description": "Tag yang isinya tidak diformat."
+        },
+        "nunjucksFormatter.inlineCustomElements": {
+          "type": "boolean",
+          "default": true,
+          "description": "Perlakukan custom element sebagai elemen inline."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    "test": "npm run compile && node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^7.0.43",
-    "typescript": "^2.6.1",
-    "vscode": "^1.1.10"
+    "@types/js-beautify": "^1.14.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.82.0",
+    "@vscode/test-electron": "^3.0.0",
+    "mocha": "^11.7.6",
+    "typescript": "^5.9.0"
   },
   "dependencies": {
-    "prettydiff2": "^2.2.7"
+    "js-beautify": "^1.15.4"
   }
 }
