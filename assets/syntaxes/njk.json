@@ -2,7 +2,7 @@
   "name": "njk",
   "scopeName": "source.njk",
   "comment": "Nunjucks Template",
-  "fileTypes": ["nj", "njk", "html", "tpl"],
+  "fileTypes": ["nunjucks", "nunjs", "nj", "njk", "html", "htm", "template", "tmpl", "tpl"],
   "foldingStartMarker": "({%\\s*(block|filter|for|if|macro|raw))",
   "foldingStopMarker": "({%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw)\\s*%})",
   "patterns": [
@@ -214,7 +214,7 @@
           "name": "punctuation.other.njk"
         },
         {
-          "match": "(==|<=|=>|<|>|!=)",
+          "match": "(==|<=|>=|<|>|!=)",
           "name": "keyword.operator.comparison.njk"
         },
         {

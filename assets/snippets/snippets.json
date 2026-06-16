@@ -41,7 +41,7 @@
   },
   "asyncAll": {
     "prefix": "asyncAll",
-    "body": "{% asyncAll ${1:item} in ${2:sequence} %}\n\t$3\n{% endeach %}",
+    "body": "{% asyncAll ${1:item} in ${2:sequence} %}\n\t$3\n{% endall %}",
     "description": "asyncAll is similar to asyncEach, except it renders all the items in parallel, preserving the order of the items. This is only helpful if you are using asynchronous filters, extensions, or loaders. Otherwise you should never use this."
   },
   "If": {
@@ -66,8 +66,8 @@
   },
   "Else": {
     "prefix": "else",
-    "body": "{% else ${1:condition} %}\n\t$2",
-    "description": "Alternate condition in the if block"
+    "body": "{% else %}\n\t$1",
+    "description": "Alternate branch in an if block (Nunjucks else takes no condition; use elif for conditions)."
   },
   "Set": {
     "prefix": "set",
@@ -118,5 +118,184 @@
     "prefix": "pipe",
     "body": "| ${1:filter}",
     "description": "You can pass filters from the variable directly e.g. {{ foo | escape }}"
+  },
+  "Alpine x-data": {
+    "prefix": "x-data",
+    "body": "x-data=\"{ ${1:key}: ${2:value} }\"",
+    "description": "AlpineJS: Declare an Alpine component scope and its reactive data object."
+  },
+  "Alpine x-data Block": {
+    "prefix": "x-data-block",
+    "body": [
+      "<div x-data=\"{ ${1:open}: false }\">",
+      "\t$0",
+      "</div>"
+    ],
+    "description": "AlpineJS: A wrapper div with x-data reactive state."
+  },
+  "Alpine x-show": {
+    "prefix": "x-show",
+    "body": "x-show=\"${1:open}\"",
+    "description": "AlpineJS: Toggle element visibility based on a reactive expression (display: none)."
+  },
+  "Alpine x-model": {
+    "prefix": "x-model",
+    "body": "x-model=\"${1:value}\"",
+    "description": "AlpineJS: Two-way bind an input element to reactive data."
+  },
+  "Alpine x-model.number": {
+    "prefix": "x-model.number",
+    "body": "x-model.number=\"${1:value}\"",
+    "description": "AlpineJS: Two-way bind with the .number modifier to coerce numeric input."
+  },
+  "Alpine x-text": {
+    "prefix": "x-text",
+    "body": "x-text=\"${1:expression}\"",
+    "description": "AlpineJS: Set the element's text content from a reactive expression."
+  },
+  "Alpine x-html": {
+    "prefix": "x-html",
+    "body": "x-html=\"${1:expression}\"",
+    "description": "AlpineJS: Set the element's inner HTML from a reactive expression."
+  },
+  "Alpine x-bind / :": {
+    "prefix": ":bind",
+    "body": ":${1:attribute}=\"${2:expression}\"",
+    "description": "AlpineJS x-bind shorthand: reactively set an HTML attribute (:class, :value, :disabled ...)."
+  },
+  "Alpine :class conditional": {
+    "prefix": ":class",
+    "body": ":class=\"{ '${1:hidden}': ${2:condition} }\"",
+    "description": "AlpineJS: Conditionally apply a class based on a reactive expression."
+  },
+  "Alpine @click": {
+    "prefix": "@click",
+    "body": "@click=\"${1:open = !open}\"",
+    "description": "AlpineJS x-on shorthand: listen for click events."
+  },
+  "Alpine @keydown": {
+    "prefix": "@keydown",
+    "body": "@keydown.${1:enter}=\"${2:action}\"",
+    "description": "AlpineJS: Listen for keyboard events with a key modifier."
+  },
+  "Alpine x-for": {
+    "prefix": "x-for",
+    "body": [
+      "<template x-for=\"${1:item} in ${2:items}\" :key=\"${1:item}.id\">",
+      "\t$0",
+      "</template>"
+    ],
+    "description": "AlpineJS: Loop over an array, rendering the template content for each item."
+  },
+  "Alpine x-if": {
+    "prefix": "x-if",
+    "body": [
+      "<template x-if=\"${1:condition}\">",
+      "\t$0",
+      "</template>"
+    ],
+    "description": "AlpineJS: Conditionally insert/remove elements from the DOM (use template tag)."
+  },
+  "Alpine x-ref": {
+    "prefix": "x-ref",
+    "body": "x-ref=\"${1:name}\"",
+    "description": "AlpineJS: Register a reference to the element, accessible via $refs."
+  },
+  "Alpine x-transition": {
+    "prefix": "x-transition",
+    "body": "x-transition",
+    "description": "AlpineJS: Apply smooth enter/leave transitions on x-show elements."
+  },
+  "Alpine x-cloak": {
+    "prefix": "x-cloak",
+    "body": "x-cloak",
+    "description": "AlpineJS: Hide the element until Alpine has initialized (pair with [x-cloak] { display: none; })."
+  },
+  "Alpine x-init": {
+    "prefix": "x-init",
+    "body": "x-init=\"${1:expression}\"",
+    "description": "AlpineJS: Run an expression when an Alpine component is initialized."
+  },
+  "Alpine x-effect": {
+    "prefix": "x-effect",
+    "body": "x-effect=\"${1:expression}\"",
+    "description": "AlpineJS: Re-run an expression whenever any of its reactive dependencies change."
+  },
+  "Alpine $store": {
+    "prefix": "$store",
+    "body": "\\$store.${1:name}.${2:property}",
+    "description": "AlpineJS magic: Access a registered Alpine global store."
+  },
+  "Alpine $dispatch": {
+    "prefix": "$dispatch",
+    "body": "\\$dispatch('${1:event}', ${2:detail})",
+    "description": "AlpineJS magic: Dispatch a custom browser event."
+  },
+  "Alpine $refs": {
+    "prefix": "$refs",
+    "body": "\\$refs.${1:name}",
+    "description": "AlpineJS magic: Access an element registered with x-ref."
+  },
+  "Alpine $nextTick": {
+    "prefix": "$nextTick",
+    "body": "\\$nextTick(() => { $0 })",
+    "description": "AlpineJS magic: Run code after the DOM has reacted to data changes."
+  },
+  "Alpine Dropdown Pattern": {
+    "prefix": "alpine-dropdown",
+    "body": [
+      "<div x-data=\"{ open: false }\" class=\"relative\">",
+      "\t<button @click=\"open = !open\" class=\"${1:px-4 py-2 bg-blue-500 text-white rounded}\">${2:Toggle}</button>",
+      "\t<div x-show=\"open\" @click.outside=\"open = false\" x-transition class=\"${3:absolute right-0 mt-2 w-48 bg-white rounded shadow-lg}\">",
+      "\t\t$0",
+      "\t</div>",
+      "</div>"
+    ],
+    "description": "AlpineJS + Tailwind: A complete dropdown menu with click-outside dismiss and transition."
+  },
+  "Alpine Modal Pattern": {
+    "prefix": "alpine-modal",
+    "body": [
+      "<div x-data=\"{ open: false }\">",
+      "\t<button @click=\"open = true\" class=\"${1:px-4 py-2 bg-blue-500 text-white rounded}\">${2:Open}</button>",
+      "\t<div x-show=\"open\" x-cloak class=\"fixed inset-0 z-50 flex items-center justify-center bg-black/50\" @keydown.escape.window=\"open = false\">",
+      "\t\t<div class=\"${3:bg-white rounded-lg p-6 max-w-md w-full mx-4}\" @click.outside=\"open = false\">",
+      "\t\t\t$0",
+      "\t\t\t<button @click=\"open = false\" class=\"${4:mt-4 px-4 py-2 bg-gray-200 rounded}\">Close</button>",
+      "\t\t</div>",
+      "\t</div>",
+      "</div>"
+    ],
+    "description": "AlpineJS + Tailwind: A complete modal dialog with ESC close and backdrop."
+  },
+  "Alpine Tabs Pattern": {
+    "prefix": "alpine-tabs",
+    "body": [
+      "<div x-data=\"{ tab: '${1:1}' }\" class=\"${2:border-b border-gray-200}\">",
+      "\t<div class=\"flex gap-1\">",
+      "\t\t<button @click=\"tab = '${1:1}'\" :class=\"tab === '${1:1}' ? '${3:bg-blue-500 text-white}' : '${4:text-gray-600}'\" class=\"px-4 py-2 rounded-t\">${5:Tab 1}</button>",
+      "\t\t<button @click=\"tab = '${6:2}'\" :class=\"tab === '${6:2}' ? '${3:bg-blue-500 text-white}' : '${4:text-gray-600}'\" class=\"px-4 py-2 rounded-t\">${7:Tab 2}</button>",
+      "\t</div>",
+      "\t<div x-show=\"tab === '${1:1}'\" class=\"p-4\">",
+      "\t\t$0",
+      "\t</div>",
+      "\t<div x-show=\"tab === '${6:2}'\" class=\"p-4\">",
+      "\t",
+      "\t</div>",
+      "</div>"
+    ],
+    "description": "AlpineJS + Tailwind: A complete tab navigation component with reactive content switching."
+  },
+  "Alpine Toggle Button": {
+    "prefix": "alpine-toggle",
+    "body": [
+      "<button x-data=\"{ on: false }\" @click=\"on = !on\"",
+      "\t:class=\"on ? '${1:bg-green-500}' : '${2:bg-gray-300}'\"",
+      "\tclass=\"relative inline-flex h-6 w-11 items-center rounded-full transition-colors\">",
+      "\t<span :class=\"on ? 'translate-x-5' : 'translate-x-1'\"",
+      "\t\tclass=\"inline-block h-4 w-4 transform rounded-full bg-white transition-transform\"></span>",
+      "</button>"
+    ],
+    "description": "AlpineJS + Tailwind: An accessible toggle switch component."
   }
 }
