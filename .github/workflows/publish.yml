@@ -59,7 +59,7 @@ jobs:
 
       - name: Push changes and tag
         run: |
-          git push origin main
+          git push origin master
           git push origin v${{ github.event.inputs.version }}
 
       - name: Install VSCE

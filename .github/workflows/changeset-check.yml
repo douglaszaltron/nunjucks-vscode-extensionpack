@@ -3,7 +3,7 @@ name: Check Changesets
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   changesets:
@@ -26,4 +26,4 @@ jobs:
         run: npm ci
 
       - name: Check for changesets
-        run: npm exec changeset -- status --since origin/main
+        run: npm exec changeset -- status --since origin/master
