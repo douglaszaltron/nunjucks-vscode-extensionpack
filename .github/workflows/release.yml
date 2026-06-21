@@ -1,0 +1,95 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Create Release PR or Publish
+    runs-on: ubuntu-latest
+    # Skip if this push was made by publish.yml (manual version bump) to avoid a trigger loop
+    if: "!startsWith(github.event.head_commit.message, 'chore: bump version to')"
+
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: npm run release
+          version: npm run version
+          title: "chore: release new version"
+          commit: "chore: release new version"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-extension:
+    name: Publish to VS Code Marketplace
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.published == 'true'
+
+    steps:
+      - name: Get published version
+        id: get-version
+        run: |
+          VERSION=$(echo '${{ needs.release.outputs.publishedPackages }}' | node -e "
+            const data = require('fs').readFileSync('/dev/stdin','utf8').trim();
+            const pkgs = JSON.parse(data);
+            const pkg = pkgs.find(p => p.name === 'nunjucks-vscode-extensionpack');
+            console.log(pkg ? pkg.version : '');
+          ")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository at release tag
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ steps.get-version.outputs.version }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile extension
+        run: npm run compile
+
+      - name: Install VSCE
+        run: npm install -g @vscode/vsce
+
+      - name: Package extension
+        run: vsce package
+
+      - name: Publish to VS Code Extension Marketplace
+        run: vsce publish --pat ${{ secrets.VSCE_TOKEN }}
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

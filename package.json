@@ -2,7 +2,7 @@
   "name": "nunjucks-vscode-extensionpack",
   "displayName": "Nunjucks VSCode Extension Pack",
   "description": "Formatting, Syntax Highlighting, Snippets for Nunjucks — with AlpineJS & Tailwind support",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Douglas Zaltron",
   "license": "MIT",
   "repository": {
@@ -86,7 +86,7 @@
         "nunjucksFormatter.wrapLineLength": {
           "type": "number",
           "default": 120,
-          "description": "Panjang maksimum baris sebelum atribut (seperti class Tailwind) dibungkus ke baris berikutnya."
+          "description": "Maximum line length before attributes (such as Tailwind classes) are wrapped to the next line."
         },
         "nunjucksFormatter.wrapAttributes": {
           "type": "string",
@@ -100,47 +100,47 @@
             "preserve",
             "preserve-aligned"
           ],
-          "description": "Strategy pembungkusan atribut HTML. \"auto\" hanya membungkus saat melebihi wrapLineLength (ideal untuk Tailwind)."
+          "description": "HTML attribute wrapping strategy. \"auto\" only wraps when exceeding wrapLineLength (ideal for Tailwind)."
         },
         "nunjucksFormatter.preprocessNunjucks": {
           "type": "boolean",
           "default": true,
-          "description": "Tarik tag block Nunjucks ({% if %}, {% for %}, {% block %}, dll.) ke baris sendiri sebelum diformat agar indentasi rapi."
+          "description": "Pull Nunjucks block tags ({% if %}, {% for %}, {% block %}, etc.) onto their own lines before formatting to ensure clean indentation."
         },
         "nunjucksFormatter.indentInnerHtml": {
           "type": "boolean",
           "default": true,
-          "description": "Indentasi konten di dalam <html> dan <body>."
+          "description": "Indent content inside <html> and <body> tags."
         },
         "nunjucksFormatter.indentBodyInnerHtml": {
           "type": "boolean",
           "default": true,
-          "description": "Indentasi konten di dalam <body>."
+          "description": "Indent content inside <body>."
         },
         "nunjucksFormatter.indentHeadInnerHtml": {
           "type": "boolean",
           "default": true,
-          "description": "Indentasi konten di dalam <head>."
+          "description": "Indent content inside <head>."
         },
         "nunjucksFormatter.preserveNewlines": {
           "type": "boolean",
           "default": true,
-          "description": "Pertahankan baris kosong yang sudah ada."
+          "description": "Preserve existing blank lines."
         },
         "nunjucksFormatter.maxPreserveNewlines": {
           "type": "number",
           "default": 2,
-          "description": "Jumlah maksimum baris kosong berturut-turut yang dipertahankan."
+          "description": "Maximum number of consecutive blank lines to preserve."
         },
         "nunjucksFormatter.endWithNewline": {
           "type": "boolean",
           "default": true,
-          "description": "Pastikan file diakhiri dengan baris baru."
+          "description": "Ensure files end with a newline."
         },
         "nunjucksFormatter.indentHandlebars": {
           "type": "boolean",
           "default": false,
-          "description": "Indentasi tag Handlebars ({{# }} / {{/ }})."
+          "description": "Indent Handlebars tags ({{# }} / {{/ }})."
         },
         "nunjucksFormatter.extraLiners": {
           "type": "array",
@@ -157,7 +157,7 @@
             "section",
             "/section"
           ],
-          "description": "Tag HTML yang mendapat baris kosong tambahan sebelumnya."
+          "description": "HTML tags that get an extra blank line before them."
         },
         "nunjucksFormatter.unformatted": {
           "type": "array",
@@ -217,7 +217,7 @@
             "video",
             "wbr"
           ],
-          "description": "Tag inline yang tidak diformat ulang (kontennya tetap pada satu baris)."
+          "description": "Inline tags that are not reformatted (their content stays on a single line)."
         },
         "nunjucksFormatter.contentUnformatted": {
           "type": "array",
@@ -228,12 +228,12 @@
             "pre",
             "textarea"
           ],
-          "description": "Tag yang isinya tidak diformat."
+          "description": "Tags whose content is not formatted."
         },
         "nunjucksFormatter.inlineCustomElements": {
           "type": "boolean",
           "default": true,
-          "description": "Perlakukan custom element sebagai elemen inline."
+          "description": "Treat custom elements as inline elements."
         }
       }
     }
@@ -242,9 +242,14 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node ./out/test/runTest.js"
+    "test": "npm run compile && node ./out/test/runTest.js",
+    "version": "node .changeset/update-versions.js",
+    "release": "npm run compile",
+    "changeset": "changeset add"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
     "@types/js-beautify": "^1.14.3",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
