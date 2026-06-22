@@ -13,9 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - All official Nunjucks tags per Mozilla docs: `verbatim`, `call`, `asyncEach`, `asyncAll`, `set` block assignment.
 - AlpineJS snippets: `x-init`, `x-effect`, `$el`, `$watch`.
 - Snippets: `verbatim`, `set-block`, `include-missing`, `from-context`, `for-else`, `comment`.
-- Plain mocha test suite (32 tests, no VS Code instance required).
+- Plain mocha test suite (39 tests, no VS Code instance required).
 - Config caching with `onDidChangeConfiguration` listener for instant reload.
 - `indent_scripts: "normal"` in js-beautify options.
+- YAML front matter preservation for static site generators (Eleventy, Jekyll, Hugo) (#3).
 
 ### Changed
 - Rewrote extension with clean architecture: `formatter.ts` (pure logic) + `extension.ts` (VS Code wrapper).
@@ -28,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - File extensions limited to `.njk` and `.nunjucks` (official Nunjucks standard).
 - Standardized all snippet descriptions to 3rd person singular.
 - Professional English throughout README, settings, and snippets.
+
+### Fixed
+- Excessive indentation when using tabs — `wrap_attributes_indent_size` now uses 1 tab per level (#4).
+- YAML front matter no longer collapsed into a single line (#3).
 
 ### Removed
 - `@vscode/test-electron` test runner — replaced with plain mocha.

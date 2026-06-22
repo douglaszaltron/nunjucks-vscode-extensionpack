@@ -24,6 +24,8 @@ Run **Format Document** (`Shift+Alt+F` on Windows/Linux, `Shift+Option+F` on mac
 
 Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, etc.) are automatically placed on their own lines before formatting. Inline Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left untouched.
 
+YAML front matter (delimited by `---`) at the start of a file is preserved unchanged, making the formatter compatible with static site generators like Eleventy, Jekyll, and Hugo.
+
 ## Configuration
 
 All settings live under the `nunjucksFormatter.*` namespace.
