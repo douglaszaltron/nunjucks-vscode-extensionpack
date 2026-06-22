@@ -5,6 +5,14 @@ All notable changes to this extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Performance
+- Hoisted static arrays (`templating`, `unformatted`, `content_unformatted`) to module-level constants to eliminate per-call allocations.
+- Cached `HTMLBeautifyOptions` object — rebuilt only when `tabSize`, `insertSpaces`, or settings change.
+- Skip `TextEdit` creation when formatted output equals input — avoids unnecessary VS Code DOM updates.
+- Early exit front matter check with `startsWith` before running regex.
+
 ## [0.3.0] - 2026-06-23
 
 ### Added

@@ -10,6 +10,8 @@ Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beau
 - **Syntax highlighting** — Nunjucks tags (`{% %}`, `{{ }}`, `{# #}`) with expression support
 - **AlpineJS highlighting** — Directives (`x-*`, `:*`, `@*`) are highlighted as attributes
 - **Snippets** — Nunjucks tags and AlpineJS directives
+- **YAML front matter** — Preserved unchanged for static site generators (Eleventy, Jekyll, Hugo)
+- **Performance** — Cached options, static constants, and early-exit checks for fast repeated saves
 
 ## Supported Extensions
 
