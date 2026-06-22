@@ -1,8 +1,10 @@
 .vscode/**
 .vscode-test/**
-out/**/*.map
-out/test/**
+.github/**
 src/**
+out/test/**
+out/**/*.map
+node_modules/**
 *.tsbuildinfo
 .gitignore
 .gitattributes

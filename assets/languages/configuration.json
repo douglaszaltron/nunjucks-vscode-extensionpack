@@ -22,7 +22,7 @@
     ["'", "'"]
   ],
   "indentationRules": {
-    "increaseIndentPattern": "{%(-|\\s)*(if|elif|else|for|block|macro|filter|raw|call|asyncEach|asyncAll)\\b",
-    "decreaseIndentPattern": "{%(-|\\s)*(endif|endfor|endblock|endmacro|endfilter|endraw|endcall|endeach|endall|elif|else)\\b"
+    "increaseIndentPattern": "{%(-|\\s)*(if|elif|else|for|block|macro|filter|raw|verbatim|call|asyncEach|asyncAll)\\b",
+    "decreaseIndentPattern": "{%(-|\\s)*(endif|elif|else|endfor|endblock|endmacro|endfilter|endraw|endverbatim|endcall|endeach|endall)\\b"
   }
 }

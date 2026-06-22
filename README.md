@@ -1,151 +1,134 @@
-# Nunjucks Visual Studio Code Extension Pack
+# Nunjucks Formatter
 
-This is the nunjucks supporting extension for vscode with complete features.
+HTML formatter for Nunjucks templates with AlpineJS support.
 
-Formatter uses [js-beautify](https://github.com/beautify-web/js-beautify) and is
-optimized for **AlpineJS** (`x-data`, `:class`, `@click`, ...) and **Tailwind CSS**.
+Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beautify-web/js-beautify) with Nunjucks-aware preprocessing. Syntax highlighting, snippets, and AlpineJS directive highlighting are included.
 
-## vscode-nunjucks support these file extensions
+## Features
+
+- **Formatting** — Full document and range formatting via VS Code's built-in formatter API
+- **Syntax highlighting** — Nunjucks tags (`{% %}`, `{{ }}`, `{# #}`) with expression support
+- **AlpineJS highlighting** — Directives (`x-*`, `:*`, `@*`) are highlighted as attributes
+- **Snippets** — Nunjucks tags and AlpineJS directives
+
+## Supported Extensions
 
 ```
-.nunjucks, .nunjs, .nj, .njk, .html, .htm, .template, .tmpl, .tpl
+.njk
+.nunjucks
 ```
 
 ## Formatting
 
-Format a file with `Shift+Alt+F` (or right-click > **Format Document**).
-A range can be formatted with **Format Selection** (`Ctrl+K Ctrl+F`).
+Run **Format Document** (`Shift+Alt+F` on Windows/Linux, `Shift+Option+F` on macOS) or **Format Selection** (`Ctrl+K Ctrl+F`).
 
-Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, ...) are
-automatically placed on their own line so indentation stays clean, while inline
-Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left
-untouched. AlpineJS directives and Tailwind utility classes are preserved.
+Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, etc.) are automatically placed on their own lines before formatting. Inline Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left untouched.
 
-### Formatter settings
+YAML front matter (delimited by `---`) at the start of a file is preserved unchanged, making the formatter compatible with static site generators like Eleventy, Jekyll, and Hugo.
+
+## Configuration
 
 All settings live under the `nunjucksFormatter.*` namespace.
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `nunjucksFormatter.wrapLineLength` | `120` | Maximum line length before HTML attributes (like Tailwind `class`) wrap to the next line. |
-| `nunjucksFormatter.wrapAttributes` | `"auto"` | Attribute wrap strategy. `"auto"` only wraps when exceeding `wrapLineLength` (recommended for Tailwind). Other options: `force`, `force-aligned`, `force-expand-multiline`, `aligned-multiple`, `preserve`, `preserve-aligned`. |
-| `nunjucksFormatter.preprocessNunjucks` | `true` | Pull Nunjucks block tags onto their own lines before formatting so indentation stays clean. |
-| `nunjucksFormatter.indentInnerHtml` | `true` | Indent content inside `<html>` / `<body>`. |
-| `nunjucksFormatter.preserveNewlines` | `true` | Keep existing blank lines. |
-| `nunjucksFormatter.maxPreserveNewlines` | `2` | Maximum consecutive blank lines to keep. |
-| `nunjucksFormatter.endWithNewline` | `true` | Ensure the file ends with a newline. |
-| `nunjucksFormatter.extraLiners` | `["html","/html","head","/head","body","/body","section","/section"]` | Tags that get a blank line before them. |
-| `nunjucksFormatter.unformatted` | *(inline tag list)* | Inline tags whose content is not reformatted. |
-| `nunjucksFormatter.contentUnformatted` | `["pre","textarea"]` | Tags whose content is left as-is. |
-| `nunjucksFormatter.inlineCustomElements` | `true` | Treat custom elements as inline. |
+| `preprocessNunjucks` | `true` | Move Nunjucks block tags onto their own lines before formatting. |
+| `wrapAttributes` | `"force-expand-multiline"` | HTML attribute wrapping strategy. |
+| `wrapLineLength` | `0` | Maximum line length. `0` = unlimited. |
+| `preserveNewlines` | `true` | Preserve existing blank lines. |
+| `maxPreserveNewlines` | `1` | Maximum consecutive blank lines to preserve. |
+| `endWithNewline` | `true` | Ensure file ends with a newline. |
 
-### Example configuration
+### Recommended Settings
 
 ```jsonc
 {
-  // Emmet + auto-close for .njk files
-  "emmet.includeLanguages": { "njk": "html" },
-  "files.associations": {
-    "*.njk": "njk",
-    "*.nunjucks": "njk",
-    "*.nunjs": "njk",
-    "*.nj": "njk",
-    "*.template": "njk",
-    "*.tmpl": "njk",
-    "*.tpl": "njk"
-  },
-
-  // Nunjucks formatter (AlpineJS + Tailwind friendly)
-  "nunjucksFormatter.wrapLineLength": 120,
-  "nunjucksFormatter.wrapAttributes": "auto",
-  "nunjucksFormatter.preprocessNunjucks": true,
-
-  // Use the nunjucks formatter as the default for the language
   "[njk]": {
     "editor.defaultFormatter": "douglaszaltron.nunjucks-vscode-extensionpack",
     "editor.formatOnSave": true
+  },
+  "emmet.includeLanguages": {
+    "njk": "html"
   }
 }
 ```
 
-## snippets
+## Snippets
 
-| Prefix      | HTML Snippet Content                             |
-| ----------- | ------------------------------------------------ |
-| `block`     | `{% block name %} {% endblock %}`                |
-| `{%`        | `{% %}`                                          |
-| `{{`        | `{{ variable }}`                                 |
-| `extends`   | `{% extends "template" %}`                       |
-| `include`   | `{% include "template" %}`                       |
-| `filter`    | `{% filter filter %} {% endfilter %}`            |
-| `for`       | `{% for item in sequence %} {% endfor %}`        |
-| `asyncEach` | `{% asyncEach item in sequence %} {% endeach %}` |
-| `asyncAll`  | `{% asyncAll item in sequence %} {% endall %}`   |
-| `if`        | `{% if condition %} {% endif %}`                 |
-| `ife`       | `if else`                                        |
-| `ifel`      | `if elif`                                        |
-| `elif`      | `elif`                                           |
-| `else`      | `else`                                           |
-| `set`       | `set`                                            |
-| `macro`     | `macro`                                          |
-| `import`    | `import`                                         |
-| `from`      | `from import`                                    |
-| `raw`       | `raw`                                            |
-| `call`      | `call`                                           |
-| `var`       | `alt variable`                                   |
-| `super`     | `super`                                          |
-| `or`        | `or`                                             |
-| `pipe`      | `pipe`                                           |
+### Nunjucks
 
-### AlpineJS snippets
-
-The pack also ships AlpineJS snippets (pairing naturally with Tailwind classes):
-
-| Prefix | Expands to |
+| Prefix | Output |
 | --- | --- |
-| `x-data`, `x-data-block` | component scope / wrapper `<div x-data>` |
-| `x-show`, `x-model`, `x-model.number`, `x-text`, `x-html` | core directives |
-| `x-init`, `x-effect`, `x-ref`, `x-cloak`, `x-transition` | lifecycle & visibility |
-| `x-for`, `x-if` | `<template>` based loops/conditionals |
-| `:bind`, `:class` | `x-bind` shorthand (incl. conditional class) |
-| `@click`, `@keydown` | `x-on` shorthand events |
-| `$store`, `$dispatch`, `$refs`, `$nextTick` | magic properties |
-| `alpine-dropdown`, `alpine-modal`, `alpine-tabs`, `alpine-toggle` | full component patterns |
+| `{%` | `{% %}` |
+| `{{` | `{{ variable }}` |
+| `if` | `{% if %} / {% endif %}` |
+| `ife` | `{% if %} / {% else %} / {% endif %}` |
+| `ifel` | `{% if %} / {% elif %} / {% else %} / {% endif %}` |
+| `elif` | `{% elif %}` |
+| `else` | `{% else %}` |
+| `for` | `{% for %} / {% endfor %}` |
+| `fore` | `{% for %} / {% else %} / {% endfor %}` |
+| `block` | `{% block %} / {% endblock %}` |
+| `set` | `{% set var = value %}` |
+| `set-block` | `{% set %} / {% endset %}` |
+| `macro` | `{% macro %} / {% endmacro %}` |
+| `filter` | `{% filter %} / {% endfilter %}` |
+| `raw` | `{% raw %} / {% endraw %}` |
+| `verbatim` | `{% verbatim %} / {% endverbatim %}` |
+| `call` | `{% call %} / {% endcall %}` |
+| `extends` | `{% extends "template" %}` |
+| `include` | `{% include "template" %}` |
+| `import` | `{% import "template" as var %}` |
+| `from` | `{% from "template" import macro %}` |
+| `comment` | `{# comment #}` |
+| `super` | `{{ super() }}` |
+| `asyncEach` | `{% asyncEach %} / {% endeach %}` |
+| `asyncAll` | `{% asyncAll %} / {% endall %}` |
 
-## Install extension in marketplace *(recomended method)*
-To install extension directly from VSCode you need to proceed with theese four simple steps:
+### AlpineJS
 
-1. Go to *View > Command Palette* (Mac OSX: `cmd+shift+P`, Windows: `ctrl+shift+P`)
-2. Run the following command in the Command Palette field: `>ext install extension` and hit enter.
-3. Then type `nunjucks-vscode-extensionpack` and hit enter.
-4. After instalation is complete restart the Code app and you are all set up for start writing nunjucks templates in VSCode.
+| Prefix | Output |
+| --- | --- |
+| `x-data` | `x-data="{ key: value }"` |
+| `x-data-block` | `<div x-data="{ open: false }">` wrapper |
+| `x-show` | `x-show="open"` |
+| `x-model` | `x-model="value"` |
+| `x-text` | `x-text="expression"` |
+| `x-html` | `x-html="expression"` |
+| `x-for` | `<template x-for="item in items">` |
+| `x-if` | `<template x-if="condition">` |
+| `x-ref` | `x-ref="name"` |
+| `x-transition` | `x-transition` |
+| `x-cloak` | `x-cloak` |
+| `x-init` | `x-init="expression"` |
+| `x-effect` | `x-effect="expression"` |
+| `:bind` | `:attribute="expression"` |
+| `:class` | `:class="{ 'class': condition }"` |
+| `@click` | `@click="action"` |
+| `@keydown` | `@keydown.enter="action"` |
+| `$store` | `$store.name.property` |
+| `$refs` | `$refs.name` |
+| `$el` | `$el` |
+| `$dispatch` | `$dispatch('event', detail)` |
+| `$nextTick` | `$nextTick(() => { })` |
+| `$watch` | `$watch('property', callback)` |
 
-## install extension manually
-To install extension manually you need to proceed with theese five steps:
+## Installation
 
-1. Download this [nunjucks-vscode-extensionpack](https://github.com/douglaszaltron/nunjucks-vscode-extensionpack) repo from GitHub
-2. Navigate to the `<user home>/.vscode/extensions` directory on your computer.
-3. Create a new folder and name it `nunjucks-vscode-extensionpack`
-4. Copy all content of this repository into the `<user home>/.vscode/extensions/nunjucks-vscode-extensionpack` directory.
-5. Restart the Code app and you are all set up for start writing nunjucks templates in Code.
+### From VS Code Marketplace
 
-## Settings
+1. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+2. Run `Extensions: Install Extensions`
+3. Search for `Nunjucks Formatter`
+4. Click **Install**
 
-See the **Formatter settings** section above for the full list of
-`nunjucksFormatter.*` options.
+### Manual
 
-```
-{
-    "html.suggest.html5": true,
-    "emmet.includeLanguages": {
-        "njk": "html"
-    },
-    "files.associations": {
-        "*.njk": "njk"
-    },
-    "[njk]": {
-        "editor.defaultFormatter": "douglaszaltron.nunjucks-vscode-extensionpack",
-        "editor.formatOnSave": true
-    }
-}
-```
+1. Download the `.vsix` from [releases](https://github.com/douglaszaltron/nunjucks-vscode-extensionpack/releases)
+2. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+3. Run `Extensions: Install from VSIX`
+4. Select the downloaded file
+
+## License
+
+[MIT](LICENSE)
