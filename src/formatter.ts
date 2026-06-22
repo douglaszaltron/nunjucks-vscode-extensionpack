@@ -29,6 +29,7 @@ export const DEFAULT_SETTINGS: FormatterSettings = {
 };
 
 const RE = {
+  FRONT_MATTER: /^---\r?\n[\s\S]*?\r?\n---\r?\n?/,
   TAG_AFTER_GT: />[ \t]*(\{%(?:[^%]|%(?!}))*%\})/g,
   TAG_BEFORE_LT: /(\{%(?:[^%]|%(?!}))*%\})[ \t]*</g,
   ADJACENT_TAGS: /(\{%(?:[^%]|%(?!}))*%\})[ \t]*(\{%(?:[^%]|%(?!}))*%\})/g,
@@ -84,10 +85,15 @@ export function formatText(
   settings: FormatterSettings = DEFAULT_SETTINGS,
 ): string {
   try {
-    const input = settings.preprocessNunjucks && source.includes("{%")
-      ? preprocess(source)
-      : source;
-    return beautifyHtml(input, buildOptions(opts, settings));
+    const fmMatch = source.match(RE.FRONT_MATTER);
+    const frontMatter = fmMatch ? fmMatch[0] : "";
+    const body = frontMatter ? source.slice(frontMatter.length) : source;
+
+    const input = settings.preprocessNunjucks && body.includes("{%")
+      ? preprocess(body)
+      : body;
+
+    return frontMatter + beautifyHtml(input, buildOptions(opts, settings));
   } catch {
     return source;
   }

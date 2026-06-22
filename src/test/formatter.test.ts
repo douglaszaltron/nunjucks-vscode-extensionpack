@@ -201,4 +201,40 @@ describe("formatText", () => {
       assert.ok(out.includes("{% if x %}"));
     });
   });
+
+  describe("YAML front matter", () => {
+    it("preserves front matter untouched", () => {
+      const src = "---\nlayout: main\ntitle: Home\n---\n<div><p>hello</p></div>";
+      const out = fmt(src);
+      assert.ok(out.startsWith("---\nlayout: main\ntitle: Home\n---"));
+      assert.ok(out.includes("\nlayout: main\n"));
+      assert.ok(out.includes("\ntitle: Home\n"));
+    });
+
+    it("does not collapse front matter into one line", () => {
+      const src = "---\nlayout: main\ntitle: Home\n---\n<p>content</p>";
+      const out = fmt(src);
+      assert.ok(!out.includes("--- layout:"));
+      assert.ok(out.includes("---\nlayout: main\ntitle: Home\n---"));
+    });
+
+    it("preserves front matter with Nunjucks content", () => {
+      const src = "---\nlayout: main\n---\n<div>{% if active %}<p>hi</p>{% endif %}</div>";
+      const out = fmt(src);
+      assert.ok(out.startsWith("---\nlayout: main\n---"));
+      assert.ok(out.includes("{% if active %}"));
+      assert.ok(out.includes("{% endif %}"));
+    });
+
+    it("is idempotent with front matter", () => {
+      const src = "---\nlayout: main\n---\n<div><p>hello</p></div>";
+      assert.strictEqual(fmt(src), fmt(fmt(src)));
+    });
+
+    it("handles file without front matter", () => {
+      const src = "<div><p>hello</p></div>";
+      const out = fmt(src);
+      assert.ok(out.includes("<p>hello</p>"));
+    });
+  });
 });
