@@ -1,13 +1,17 @@
 {
   "name": "nunjucks-vscode-extensionpack",
-  "displayName": "Nunjucks VSCode Extension Pack",
-  "description": "Formatting, Syntax Highlighting, Snippets for Nunjucks — with AlpineJS & Tailwind support",
-  "version": "0.2.0",
+  "displayName": "Nunjucks Formatter",
+  "description": "HTML formatter for Nunjucks templates with AlpineJS support",
+  "version": "0.3.0",
   "author": "Douglas Zaltron",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/douglaszaltron/nunjucks-vscode-extensionpack"
+  },
+  "homepage": "https://github.com/douglaszaltron/nunjucks-vscode-extensionpack",
+  "bugs": {
+    "url": "https://github.com/douglaszaltron/nunjucks-vscode-extensionpack/issues"
   },
   "publisher": "douglaszaltron",
   "icon": "images/icon.png",
@@ -20,9 +24,8 @@
     "nunjucks",
     "njk",
     "alpinejs",
-    "tailwindcss",
     "html",
-    "template"
+    "formatter"
   ],
   "engines": {
     "vscode": "^1.82.0"
@@ -54,16 +57,8 @@
           "njk"
         ],
         "extensions": [
-          ".nunjucks",
-          ".nunjs",
-          ".nunj",
-          ".nj",
           ".njk",
-          ".html",
-          ".htm",
-          ".template",
-          ".tmpl",
-          ".tpl"
+          ".nunjucks"
         ],
         "configuration": "./assets/languages/configuration.json"
       }
@@ -71,26 +66,21 @@
     "grammars": [
       {
         "language": "njk",
-        "scopeName": "source.njk",
-        "path": "./assets/syntaxes/njk.json"
-      },
-      {
-        "language": "njk",
         "scopeName": "text.html.njk",
-        "path": "./assets/syntaxes/njk-html.json"
+        "path": "./assets/syntaxes/njk.json"
       }
     ],
     "configuration": {
       "title": "Nunjucks Formatter",
       "properties": {
-        "nunjucksFormatter.wrapLineLength": {
-          "type": "number",
-          "default": 120,
-          "description": "Maximum line length before attributes (such as Tailwind classes) are wrapped to the next line."
+        "nunjucksFormatter.preprocessNunjucks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Move Nunjucks block tags ({% if %}, {% for %}, {% block %}, etc.) onto their own lines before formatting."
         },
         "nunjucksFormatter.wrapAttributes": {
           "type": "string",
-          "default": "auto",
+          "default": "force-expand-multiline",
           "enum": [
             "auto",
             "force",
@@ -100,27 +90,12 @@
             "preserve",
             "preserve-aligned"
           ],
-          "description": "HTML attribute wrapping strategy. \"auto\" only wraps when exceeding wrapLineLength (ideal for Tailwind)."
+          "description": "HTML attribute wrapping strategy. Each attribute is placed on its own line."
         },
-        "nunjucksFormatter.preprocessNunjucks": {
-          "type": "boolean",
-          "default": true,
-          "description": "Pull Nunjucks block tags ({% if %}, {% for %}, {% block %}, etc.) onto their own lines before formatting to ensure clean indentation."
-        },
-        "nunjucksFormatter.indentInnerHtml": {
-          "type": "boolean",
-          "default": true,
-          "description": "Indent content inside <html> and <body> tags."
-        },
-        "nunjucksFormatter.indentBodyInnerHtml": {
-          "type": "boolean",
-          "default": true,
-          "description": "Indent content inside <body>."
-        },
-        "nunjucksFormatter.indentHeadInnerHtml": {
-          "type": "boolean",
-          "default": true,
-          "description": "Indent content inside <head>."
+        "nunjucksFormatter.wrapLineLength": {
+          "type": "number",
+          "default": 0,
+          "description": "Maximum line length. 0 = unlimited."
         },
         "nunjucksFormatter.preserveNewlines": {
           "type": "boolean",
@@ -129,111 +104,13 @@
         },
         "nunjucksFormatter.maxPreserveNewlines": {
           "type": "number",
-          "default": 2,
+          "default": 1,
           "description": "Maximum number of consecutive blank lines to preserve."
         },
         "nunjucksFormatter.endWithNewline": {
           "type": "boolean",
           "default": true,
-          "description": "Ensure files end with a newline."
-        },
-        "nunjucksFormatter.indentHandlebars": {
-          "type": "boolean",
-          "default": false,
-          "description": "Indent Handlebars tags ({{# }} / {{/ }})."
-        },
-        "nunjucksFormatter.extraLiners": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "html",
-            "/html",
-            "head",
-            "/head",
-            "body",
-            "/body",
-            "section",
-            "/section"
-          ],
-          "description": "HTML tags that get an extra blank line before them."
-        },
-        "nunjucksFormatter.unformatted": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "a",
-            "abbr",
-            "area",
-            "audio",
-            "b",
-            "bdi",
-            "bdo",
-            "br",
-            "canvas",
-            "cite",
-            "code",
-            "data",
-            "datalist",
-            "del",
-            "dfn",
-            "em",
-            "embed",
-            "i",
-            "iframe",
-            "img",
-            "input",
-            "ins",
-            "kbd",
-            "label",
-            "map",
-            "mark",
-            "math",
-            "meter",
-            "noscript",
-            "object",
-            "output",
-            "progress",
-            "q",
-            "ruby",
-            "s",
-            "samp",
-            "select",
-            "slot",
-            "small",
-            "span",
-            "strong",
-            "sub",
-            "sup",
-            "svg",
-            "template",
-            "textarea",
-            "time",
-            "u",
-            "var",
-            "video",
-            "wbr"
-          ],
-          "description": "Inline tags that are not reformatted (their content stays on a single line)."
-        },
-        "nunjucksFormatter.contentUnformatted": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "pre",
-            "textarea"
-          ],
-          "description": "Tags whose content is not formatted."
-        },
-        "nunjucksFormatter.inlineCustomElements": {
-          "type": "boolean",
-          "default": true,
-          "description": "Treat custom elements as inline elements."
+          "description": "Ensure file ends with a newline."
         }
       }
     }
@@ -242,19 +119,13 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node ./out/test/runTest.js",
-    "version": "node .changeset/update-versions.js",
-    "release": "npm run compile",
-    "changeset": "changeset add"
+    "test": "npm run compile && mocha out/test/**/*.test.js"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.31.0",
     "@types/js-beautify": "^1.14.3",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.82.0",
-    "@vscode/test-electron": "^3.0.0",
     "mocha": "^11.7.6",
     "typescript": "^5.9.0"
   },
