@@ -47,14 +47,15 @@ const EXTRA_LINERS = [
 
 function buildOptions(opts: FormattingOptions, s: FormatterSettings): HTMLBeautifyOptions {
   const { tabSize = 2, insertSpaces = true } = opts;
+  const useTabs = !insertSpaces;
 
   return {
     indent_size: tabSize,
-    indent_char: insertSpaces ? " " : "\t",
-    indent_with_tabs: !insertSpaces,
+    indent_char: useTabs ? "\t" : " ",
+    indent_with_tabs: useTabs,
     wrap_line_length: s.wrapLineLength,
     wrap_attributes: s.wrapAttributes,
-    wrap_attributes_indent_size: tabSize,
+    wrap_attributes_indent_size: useTabs ? 1 : tabSize,
     templating: ["django"],
     indent_inner_html: true,
     indent_body_inner_html: true,

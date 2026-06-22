@@ -189,6 +189,25 @@ describe("formatText", () => {
       assert.ok(out.includes("\n\t<p>hi</p>\n"));
     });
 
+    it("uses one tab per indent level (fixes #4)", () => {
+      const out = formatText("<div><div><p>deep</p></div></div>", { tabSize: 4, insertSpaces: false }, DEFAULT_SETTINGS);
+      const lines = out.split("\n");
+      for (const line of lines) {
+        const tabs = (line.match(/^\t*/) ?? [""])[0];
+        assert.ok(tabs.length <= 3, `Expected max 3 tabs, got ${tabs.length} in: "${line}"`);
+      }
+    });
+
+    it("does not produce excessive indentation with spaces", () => {
+      const src = "<div>{% for item in items %}{% if item.active %}<p>{{ item.name }}</p>{% endif %}{% endfor %}</div>";
+      const out = formatText(src, { tabSize: 2, insertSpaces: true }, DEFAULT_SETTINGS);
+      const lines = out.split("\n");
+      for (const line of lines) {
+        const spaces = (line.match(/^ */) ?? [""])[0];
+        assert.ok(spaces.length <= 12, `Expected max 12 spaces (6 levels), got ${spaces.length} in: "${line}"`);
+      }
+    });
+
     it("respects endWithNewline = false", () => {
       const s = { ...DEFAULT_SETTINGS, endWithNewline: false };
       const out = formatText("<div>test</div>", OPTS, s);
