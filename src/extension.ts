@@ -1,7 +1,7 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { formatText, DEFAULT_SETTINGS } from "./formatter";
+import { formatText, DEFAULT_SETTINGS, invalidateOptionCache } from "./formatter";
 import type { FormatterSettings } from "./formatter";
 
 const LANGUAGE_ID = "njk";
@@ -35,18 +35,25 @@ export function activate(ctx: vscode.ExtensionContext): void {
   const reload = vscode.workspace.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration("nunjucksFormatter")) {
       settings = loadSettings();
+      invalidateOptionCache();
     }
   });
 
   const formatProvider: vscode.DocumentFormattingEditProvider = {
     provideDocumentFormattingEdits(doc, opts) {
-      return [new vscode.TextEdit(fullRange(doc), formatText(doc.getText(), opts, getSettings()))];
+      const text = doc.getText();
+      const formatted = formatText(text, opts, getSettings());
+      if (formatted === text) return [];
+      return [new vscode.TextEdit(fullRange(doc), formatted)];
     },
   };
 
   const rangeProvider: vscode.DocumentRangeFormattingEditProvider = {
     provideDocumentRangeFormattingEdits(doc, range, opts) {
-      return [new vscode.TextEdit(range, formatText(doc.getText(range), opts, getSettings()))];
+      const text = doc.getText(range);
+      const formatted = formatText(text, opts, getSettings());
+      if (formatted === text) return [];
+      return [new vscode.TextEdit(range, formatted)];
     },
   };
 
@@ -59,4 +66,5 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
   settings = null;
+  invalidateOptionCache();
 }
