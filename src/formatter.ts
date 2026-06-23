@@ -1,5 +1,3 @@
-"use strict";
-
 import { html as beautifyHtml } from "js-beautify";
 import type { HTMLBeautifyOptions } from "js-beautify";
 

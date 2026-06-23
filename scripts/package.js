@@ -1,5 +1,3 @@
-"use strict";
-
 const { build } = require("esbuild");
 const { execSync } = require("child_process");
 const fs = require("fs");

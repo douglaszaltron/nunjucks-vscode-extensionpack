@@ -1,5 +1,3 @@
-"use strict";
-
 import * as vscode from "vscode";
 import { formatText, DEFAULT_SETTINGS, invalidateOptionCache } from "./formatter";
 import type { FormatterSettings } from "./formatter";
