@@ -1,7 +1,7 @@
 {
   "name": "nunjucks-vscode-extensionpack",
   "displayName": "Nunjucks Formatter",
-  "description": "HTML formatter for Nunjucks templates with AlpineJS support",
+  "description": "Fast HTML formatter for Nunjucks templates with AlpineJS directives. Also supports Astro, Vue, Svelte, Twig, and Jinja files.",
   "version": "0.3.0",
   "author": "Douglas Zaltron",
   "license": "MIT",
@@ -41,6 +41,9 @@
     }
   },
   "main": "./out/extension",
+  "activationEvents": [
+    "onLanguage:njk"
+  ],
   "contributes": {
     "snippets": [
       {
@@ -61,6 +64,31 @@
           ".nunjucks"
         ],
         "configuration": "./assets/languages/configuration.json"
+      },
+      {
+        "id": "astro",
+        "aliases": ["Astro"],
+        "extensions": [".astro"]
+      },
+      {
+        "id": "vue",
+        "aliases": ["Vue", "Vue Template"],
+        "extensions": [".vue"]
+      },
+      {
+        "id": "svelte",
+        "aliases": ["Svelte"],
+        "extensions": [".svelte"]
+      },
+      {
+        "id": "twig",
+        "aliases": ["Twig"],
+        "extensions": [".twig"]
+      },
+      {
+        "id": "jinja",
+        "aliases": ["Jinja", "Jinja2"],
+        "extensions": [".jinja", ".jinja2"]
       }
     ],
     "grammars": [
@@ -73,39 +101,40 @@
     "configuration": {
       "title": "Nunjucks Formatter",
       "properties": {
-        "nunjucksFormatter.preprocessNunjucks": {
-          "type": "boolean",
-          "default": true,
-          "description": "Move Nunjucks block tags ({% if %}, {% for %}, {% block %}, etc.) onto their own lines before formatting."
-        },
-        "nunjucksFormatter.wrapAttributes": {
-          "type": "string",
-          "default": "force-expand-multiline",
-          "enum": [
-            "auto",
-            "force",
-            "force-aligned",
-            "force-expand-multiline",
-            "aligned-multiple",
-            "preserve",
-            "preserve-aligned"
-          ],
-          "description": "HTML attribute wrapping strategy. Each attribute is placed on its own line."
-        },
-        "nunjucksFormatter.wrapLineLength": {
+        "nunjucksFormatter.printWidth": {
           "type": "number",
-          "default": 0,
-          "description": "Maximum line length. 0 = unlimited."
+          "default": 80,
+          "description": "Maximum line length."
         },
-        "nunjucksFormatter.preserveNewlines": {
+        "nunjucksFormatter.tabWidth": {
+          "type": "number",
+          "default": 2,
+          "description": "Number of spaces per indentation level. Use 0 for tabs."
+        },
+        "nunjucksFormatter.useTabs": {
           "type": "boolean",
-          "default": true,
-          "description": "Preserve existing blank lines."
+          "default": false,
+          "description": "Use tabs for indentation."
         },
-        "nunjucksFormatter.maxPreserveNewlines": {
+        "nunjucksFormatter.maxAttrsPerLine": {
           "type": "number",
           "default": 1,
-          "description": "Maximum number of consecutive blank lines to preserve."
+          "description": "Maximum number of attributes per line."
+        },
+        "nunjucksFormatter.closingBracketSameLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Place closing bracket on same line as last attribute."
+        },
+        "nunjucksFormatter.singleAttrSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow single attribute on same line as opening tag."
+        },
+        "nunjucksFormatter.selfClosingVoid": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use self-closing syntax for void elements."
         },
         "nunjucksFormatter.endWithNewline": {
           "type": "boolean",
@@ -116,21 +145,31 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run bundle",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "test": "npm run compile && mocha out/test/**/*.test.js"
+    "bundle": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --target=node18 --sourcemap",
+    "watch": "concurrently \"tsc --noEmit --watch -p ./\" \"esbuild src/extension.ts --bundle --watch --outfile=out/extension.js --external:vscode --format=cjs --platform=node --target=node18 --sourcemap\"",
+    "test": "tsc -p ./ && mocha out/test/**/*.test.js",
+    "lint": "eslint src/ --ext .ts",
+    "build": "node scripts/package.js",
+    "version": "changeset version",
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('out',{recursive:true,force:true});fs.rmSync('dist',{recursive:true,force:true})\""
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
-    "@types/js-beautify": "^1.14.3",
+    "@eslint/js": "^10.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.82.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
+    "@typescript-eslint/parser": "^8.62.0",
+    "concurrently": "^10.0.3",
+    "esbuild": "^0.28.1",
+    "eslint": "^10.5.0",
     "mocha": "^11.7.6",
     "typescript": "^5.9.0"
   },
   "dependencies": {
-    "js-beautify": "^1.15.4"
+    "@dprint/formatter": "^0.5.0"
   }
 }

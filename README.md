@@ -1,45 +1,59 @@
 # Nunjucks Formatter
 
-HTML formatter for Nunjucks templates with AlpineJS support.
-
-Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beautify-web/js-beautify) with Nunjucks-aware preprocessing. Syntax highlighting, snippets, and AlpineJS directive highlighting are included.
+Fast HTML formatter for Nunjucks templates with AlpineJS directives.
 
 ## Features
 
-- **Formatting** — Full document and range formatting via VS Code's built-in formatter API
-- **Syntax highlighting** — Nunjucks tags (`{% %}`, `{{ }}`, `{# #}`) with expression support
-- **AlpineJS highlighting** — Directives (`x-*`, `:*`, `@*`) are highlighted as attributes
-- **Snippets** — Nunjucks tags and AlpineJS directives
+**Formatting**
+- Native Nunjucks/Jinja/Twig block parsing (`{% macro %}`, `{% if %}`, `{% for %}`)
+- Inline conditionals kept on a single line (`{% if x %}val{% endif %}`)
+- Multi-line AlpineJS `:class="{ ... }"` attributes properly indented
+- YAML front matter preserved for Eleventy, Jekyll, Hugo
+- Full document and range formatting
+- Built on dprint + markup_fmt (Rust-based WASM) - fast and idempotent
 
-## Supported Extensions
+**Supported File Types**
+- `.njk`, `.nunjucks` - Nunjucks
+- `.astro` - Astro
+- `.vue` - Vue/Nuxt
+- `.svelte` - Svelte/SvelteKit
+- `.twig` - Twig
+- `.jinja`, `.jinja2` - Jinja
 
+**Developer Experience**
+- Syntax highlighting for Nunjucks tags and expressions
+- AlpineJS directive highlighting (`x-*`, `:*`, `@*`)
+- Snippets for Nunjucks tags and AlpineJS directives
+- Lightweight and responsive on repeated saves
+
+## Before / After
+
+Before:
+```njk
+{% macro render(img) %}{% if img %}<img src="{{ img.src }}">{{ img.alt }}{% endif %}{% endmacro %}
 ```
-.njk
-.nunjucks
+
+After:
+```njk
+{% macro render(img) %}
+  {% if img %}
+    <img src="{{ img.src }}">
+    {{ img.alt }}
+  {% endif %}
+{% endmacro %}
 ```
 
-## Formatting
+Inline conditionals stay on one line:
+```njk
+<img
+  {% if fetchpriority %}fetchpriority="{{ fetchpriority }}"{% endif %}
+  {% if class %}class="{{ class }}"{% endif %}
+>
+```
 
-Run **Format Document** (`Shift+Alt+F` on Windows/Linux, `Shift+Option+F` on macOS) or **Format Selection** (`Ctrl+K Ctrl+F`).
+## Getting Started
 
-Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, etc.) are automatically placed on their own lines before formatting. Inline Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left untouched.
-
-YAML front matter (delimited by `---`) at the start of a file is preserved unchanged, making the formatter compatible with static site generators like Eleventy, Jekyll, and Hugo.
-
-## Configuration
-
-All settings live under the `nunjucksFormatter.*` namespace.
-
-| Setting | Default | Description |
-| --- | --- | --- |
-| `preprocessNunjucks` | `true` | Move Nunjucks block tags onto their own lines before formatting. |
-| `wrapAttributes` | `"force-expand-multiline"` | HTML attribute wrapping strategy. |
-| `wrapLineLength` | `0` | Maximum line length. `0` = unlimited. |
-| `preserveNewlines` | `true` | Preserve existing blank lines. |
-| `maxPreserveNewlines` | `1` | Maximum consecutive blank lines to preserve. |
-| `endWithNewline` | `true` | Ensure file ends with a newline. |
-
-### Recommended Settings
+Set as your default formatter for `.njk` files:
 
 ```jsonc
 {
@@ -53,9 +67,25 @@ All settings live under the `nunjucksFormatter.*` namespace.
 }
 ```
 
+## Configuration
+
+All settings live under the `nunjucksFormatter.*` namespace.
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `printWidth` | `80` | Maximum line length. |
+| `tabWidth` | `2` | Number of spaces per indentation level. Use `0` for tabs. |
+| `useTabs` | `false` | Use tabs for indentation. |
+| `maxAttrsPerLine` | `1` | Maximum number of attributes per line. |
+| `closingBracketSameLine` | `true` | Place closing bracket on same line as last attribute. |
+| `singleAttrSameLine` | `false` | Allow single attribute on same line as opening tag. |
+| `selfClosingVoid` | `true` | Use self-closing syntax for void elements (`<br />`). |
+| `endWithNewline` | `true` | Ensure file ends with a newline. |
+
 ## Snippets
 
-### Nunjucks
+<details>
+<summary>Nunjucks snippets (25)</summary>
 
 | Prefix | Output |
 | --- | --- |
@@ -85,7 +115,10 @@ All settings live under the `nunjucksFormatter.*` namespace.
 | `asyncEach` | `{% asyncEach %} / {% endeach %}` |
 | `asyncAll` | `{% asyncAll %} / {% endall %}` |
 
-### AlpineJS
+</details>
+
+<details>
+<summary>AlpineJS snippets (17)</summary>
 
 | Prefix | Output |
 | --- | --- |
@@ -112,6 +145,8 @@ All settings live under the `nunjucksFormatter.*` namespace.
 | `$dispatch` | `$dispatch('event', detail)` |
 | `$nextTick` | `$nextTick(() => { })` |
 | `$watch` | `$watch('property', callback)` |
+
+</details>
 
 ## Installation
 

@@ -5,6 +5,39 @@ All notable changes to this extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Major Changes
+- **Replaced js-beautify with dprint + markup_fmt** — Native AST-based parsing for Nunjucks, Jinja, Twig, Astro, Vue, Svelte templates. Faster and more accurate.
+- Added support for `.astro`, `.vue`, `.svelte`, `.twig`, `.jinja`, `.jinja2` files.
+- Settings API changed — see migration below.
+
+### Migration from v0.3.x
+
+| Old Setting | New Setting | Notes |
+| --- | --- | --- |
+| `preprocessNunjucks` | (removed) | No longer needed - markup_fmt handles natively |
+| `wrapAttributes` | `maxAttrsPerLine` + `closingBracketSameLine` | Different model |
+| `wrapLineLength` | `printWidth` | Same concept |
+| `preserveNewlines` | (removed) | Handled by markup_fmt |
+| `maxPreserveNewlines` | (removed) | Handled by markup_fmt |
+
+### Added
+- Native Nunjucks/Jinja/Twig block parsing (`{% macro %}`, `{% if %}`, `{% for %}`)
+- Inline conditional joining — `{% if x %}val{% endif %}` kept on a single line.
+- Multi-line AlpineJS object attribute indentation — `:class="{ ... }"` content indented relative to the attribute.
+- YAML front matter preserved for Eleventy, Jekyll, Hugo
+- Settings: `tabWidth`, `useTabs`, `closingBracketSameLine`, `singleAttrSameLine`, `selfClosingVoid`
+
+### Performance
+- Built on dprint + markup_fmt (Rust-based WASM) — fast and idempotent
+- esbuild bundling — extension size optimized
+
+### Removed
+- `publish.yml` — old manual version workflow, replaced by changesets.
+- `update-versions.js` — synced extension version to debug protocol version (bug).
+- `@vscode/test-electron` — replaced with plain mocha.
+
 ## [0.3.0] - 2026-06-23
 
 ### Added

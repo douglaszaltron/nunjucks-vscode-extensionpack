@@ -1,11 +1,17 @@
 .vscode/**
 .vscode-test/**
 .github/**
+.changeset/**
 src/**
+scripts/**
 out/test/**
 out/**/*.map
 node_modules/**
 *.tsbuildinfo
+*.vsix
 .gitignore
 .gitattributes
+.editorconfig
+.eslintrc.json
+eslint.config.js
 tsconfig.json
