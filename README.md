@@ -2,16 +2,19 @@
 
 HTML formatter for Nunjucks templates with AlpineJS support.
 
-Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beautify-web/js-beautify) with Nunjucks-aware preprocessing. Syntax highlighting, snippets, and AlpineJS directive highlighting are included.
+Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beautify-web/js-beautify) with Nunjucks-aware preprocessing, block depth tracking, and inline conditional joining. Syntax highlighting, snippets, and AlpineJS directive support are included.
 
 ## Features
 
 - **Formatting** — Full document and range formatting via VS Code's built-in formatter API
+- **Nunjucks block indentation** — `{% macro %}`, `{% if %}`, `{% for %}` content properly indented based on nesting depth
+- **Inline conditionals** — `{% if x %}val{% endif %}` and `{% if %}v1{% elif %}v2{% else %}v3{% endif %}` kept on a single line
+- **AlpineJS support** — Multi-line `:class="{ ... }"` object attributes properly indented
 - **Syntax highlighting** — Nunjucks tags (`{% %}`, `{{ }}`, `{# #}`) with expression support
 - **AlpineJS highlighting** — Directives (`x-*`, `:*`, `@*`) are highlighted as attributes
 - **Snippets** — Nunjucks tags and AlpineJS directives
 - **YAML front matter** — Preserved unchanged for static site generators (Eleventy, Jekyll, Hugo)
-- **Performance** — Cached options, static constants, and early-exit checks for fast repeated saves
+- **Performance** — esbuild bundled (107KB), cached options, static constants for fast repeated saves
 
 ## Supported Extensions
 
@@ -24,7 +27,11 @@ Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beau
 
 Run **Format Document** (`Shift+Alt+F` on Windows/Linux, `Shift+Option+F` on macOS) or **Format Selection** (`Ctrl+K Ctrl+F`).
 
-Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, etc.) are automatically placed on their own lines before formatting. Inline Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left untouched.
+Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, etc.) are automatically placed on their own lines and indented based on nesting depth. Content inside `{% macro %}`, `{% if %}`, `{% for %}` is properly indented relative to the block.
+
+Inline conditionals like `{% if x %}attribute="value"{% endif %}` and `{% if x %}v1{% elif y %}v2{% else %}v3{% endif %}` are kept on a single line. Inline Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left untouched.
+
+Multi-line AlpineJS object attributes like `:class="{ ... }"` have their content indented relative to the attribute name.
 
 YAML front matter (delimited by `---`) at the start of a file is preserved unchanged, making the formatter compatible with static site generators like Eleventy, Jekyll, and Hugo.
 
@@ -51,7 +58,8 @@ All settings live under the `nunjucksFormatter.*` namespace.
   },
   "emmet.includeLanguages": {
     "njk": "html"
-  }
+  },
+  "nunjucksFormatter.maxPreserveNewlines": 0
 }
 ```
 
