@@ -254,4 +254,72 @@ describe("formatText", () => {
       assert.ok(out.includes("<p>hello</p>"));
     });
   });
+
+  describe("Nunjucks block indentation", () => {
+    it("indents content inside {% if %}", () => {
+      const src = "<div>{% if active %}<p>hi</p>{% endif %}</div>";
+      const out = fmt(src);
+      const lines = out.split("\n");
+      const ifLine = lines.find((l) => l.includes("{% if active"));
+      const contentLine = lines.find((l) => l.includes("<p>hi</p>"));
+      const ifIndent = ifLine?.match(/^ */)?.[0].length ?? 0;
+      const contentIndent = contentLine?.match(/^ */)?.[0].length ?? 0;
+      assert.ok(contentIndent > ifIndent, "Content should be indented deeper than {% if %}");
+    });
+
+    it("indents {% else %} at same level as {% if %}", () => {
+      const src = "<div>{% if a %}<p>a</p>{% else %}<p>b</p>{% endif %}</div>";
+      const out = fmt(src);
+      const lines = out.split("\n");
+      const ifIndent = lines.find((l) => l.includes("{% if a"))?.match(/^ */)?.[0].length ?? 0;
+      const elseIndent = lines.find((l) => l.includes("{% else"))?.match(/^ */)?.[0].length ?? 0;
+      assert.strictEqual(ifIndent, elseIndent, "{% else %} should be at same level as {% if %}");
+    });
+
+    it("indents {% endif %} at same level as {% if %}", () => {
+      const src = "<div>{% if a %}<p>a</p>{% endif %}</div>";
+      const out = fmt(src);
+      const lines = out.split("\n");
+      const ifIndent = lines.find((l) => l.includes("{% if a"))?.match(/^ */)?.[0].length ?? 0;
+      const endifIndent = lines.find((l) => l.includes("{% endif"))?.match(/^ */)?.[0].length ?? 0;
+      assert.strictEqual(ifIndent, endifIndent, "{% endif %} should be at same level as {% if %}");
+    });
+
+    it("indents nested {% if %} inside {% for %}", () => {
+      const src = "<ul>{% for item in items %}{% if item.active %}<li>{{ item.name }}</li>{% endif %}{% endfor %}</ul>";
+      const out = fmt(src);
+      const lines = out.split("\n");
+      const forIndent = lines.find((l) => l.includes("{% for"))?.match(/^ */)?.[0].length ?? 0;
+      const ifIndent = lines.find((l) => l.includes("{% if item.active"))?.match(/^ */)?.[0].length ?? 0;
+      assert.ok(ifIndent > forIndent, "Nested {% if %} should be indented deeper than {% for %}");
+    });
+
+    it("indents {% macro %} content", () => {
+      const src = "{% macro field(name) %}<input name=\"{{ name }}\">{% endmacro %}";
+      const out = fmt(src);
+      const lines = out.split("\n");
+      const macroIndent = lines.find((l) => l.includes("{% macro"))?.match(/^ */)?.[0].length ?? 0;
+      const inputIndent = lines.find((l) => l.includes("<input"))?.match(/^ */)?.[0].length ?? 0;
+      assert.ok(inputIndent > macroIndent, "Content inside {% macro %} should be indented");
+    });
+
+    it("indents deeply nested macro with if/else", () => {
+      const src = "{% macro render(img) %}{% if img %}<img src=\"{{ img }}\">{% else %}<span>none</span>{% endif %}{% endmacro %}";
+      const out = fmt(src);
+      const lines = out.split("\n");
+      const macroIndent = lines.find((l) => l.includes("{% macro"))?.match(/^ */)?.[0].length ?? 0;
+      const ifIndent = lines.find((l) => l.includes("{% if img"))?.match(/^ */)?.[0].length ?? 0;
+      const elseIndent = lines.find((l) => l.includes("{% else"))?.match(/^ */)?.[0].length ?? 0;
+      const endmacroIndent = lines.find((l) => l.includes("{% endmacro"))?.match(/^ */)?.[0].length ?? 0;
+      assert.strictEqual(macroIndent, 0);
+      assert.ok(ifIndent > macroIndent);
+      assert.strictEqual(ifIndent, elseIndent);
+      assert.strictEqual(endmacroIndent, macroIndent);
+    });
+
+    it("is idempotent with nested Nunjucks blocks", () => {
+      const src = "{% macro render(img) %}{% if img %}{% if img.large %}<img src=\"{{ img.large }}\">{% endif %}{% else %}<span>none</span>{% endif %}{% endmacro %}";
+      assert.strictEqual(fmt(src), fmt(fmt(src)));
+    });
+  });
 });
