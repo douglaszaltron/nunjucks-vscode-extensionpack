@@ -13,8 +13,7 @@ jobs:
   release:
     name: Create Release PR or Publish
     runs-on: ubuntu-latest
-    # Skip if this push was made by publish.yml (manual version bump) to avoid a trigger loop
-    if: "!startsWith(github.event.head_commit.message, 'chore: bump version to')"
+    if: "!startsWith(github.event.head_commit.message, 'chore: release new version')"
 
     outputs:
       published: ${{ steps.changesets.outputs.published }}
@@ -80,8 +79,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Compile extension
-        run: npm run compile
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Bundle extension
+        run: npm run bundle
 
       - name: Install VSCE
         run: npm install -g @vscode/vsce
@@ -89,7 +94,19 @@ jobs:
       - name: Package extension
         run: vsce package
 
-      - name: Publish to VS Code Extension Marketplace
+      - name: Publish to VS Code Marketplace
         run: vsce publish --pat ${{ secrets.VSCE_TOKEN }}
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get-version.outputs.version }}
+          name: Release v${{ steps.get-version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: "*.vsix"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

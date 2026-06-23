@@ -3,9 +3,9 @@
   "tasks": [
     {
       "type": "npm",
-      "script": "compile",
-      "label": "npm: compile",
-      "problemMatcher": ["$tsc"],
+      "script": "bundle",
+      "label": "npm: bundle",
+      "problemMatcher": [],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -27,6 +27,12 @@
         "kind": "test",
         "isDefault": true
       }
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "label": "npm: lint",
+      "problemMatcher": ["$eslint-stylish"]
     }
   ]
 }
