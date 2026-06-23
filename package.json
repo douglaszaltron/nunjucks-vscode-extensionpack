@@ -119,10 +119,13 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run bundle",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "test": "npm run compile && mocha out/test/**/*.test.js"
+    "bundle": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --target=node18 --sourcemap",
+    "watch": "esbuild src/extension.ts --bundle --watch --outfile=out/extension.js --external:vscode --format=cjs --platform=node --target=node18 --sourcemap",
+    "test": "tsc -p ./ && mocha out/test/**/*.test.js",
+    "build": "node scripts/package.js",
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('out',{recursive:true,force:true});fs.rmSync('dist',{recursive:true,force:true})\""
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
@@ -130,6 +133,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.82.0",
+    "esbuild": "^0.28.1",
     "mocha": "^11.7.6",
     "typescript": "^5.9.0"
   },

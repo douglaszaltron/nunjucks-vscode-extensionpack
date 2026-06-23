@@ -3,6 +3,7 @@
 .github/**
 .changeset/**
 src/**
+scripts/**
 out/test/**
 out/**/*.map
 node_modules/**
