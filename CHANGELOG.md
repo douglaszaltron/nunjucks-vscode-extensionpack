@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Nunjucks block depth tracking — `{% macro %}`, `{% if %}`, `{% for %}`, `{% block %}` content now properly indented based on nesting depth.
 - Inline conditional joining — `{% if x %}val{% endif %}` and `{% if x %}v1{% elif y %}v2{% else %}v3{% endif %}` kept on a single line.
 - Multi-line AlpineJS object attribute indentation — `:class="{ ... }"` content indented relative to the attribute.
+- Multi-line Nunjucks tag preservation — `{% set x = { ... } %}` content stays idempotent across repeated saves.
 - `insideHtmlTag` tracking — `{% if %}` used as conditional HTML attributes follows attribute indentation, not block depth.
 - AGENTS.md following [agents.md](https://agents.md/) standard.
 

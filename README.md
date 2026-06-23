@@ -9,12 +9,13 @@ Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beau
 - **Formatting** — Full document and range formatting via VS Code's built-in formatter API
 - **Nunjucks block indentation** — `{% macro %}`, `{% if %}`, `{% for %}` content properly indented based on nesting depth
 - **Inline conditionals** — `{% if x %}val{% endif %}` and `{% if %}v1{% elif %}v2{% else %}v3{% endif %}` kept on a single line
+- **Multi-line `{% set %}`** — Object literals inside `{% set x = { ... } %}` stay stable across repeated saves
 - **AlpineJS support** — Multi-line `:class="{ ... }"` object attributes properly indented
 - **Syntax highlighting** — Nunjucks tags (`{% %}`, `{{ }}`, `{# #}`) with expression support
 - **AlpineJS highlighting** — Directives (`x-*`, `:*`, `@*`) are highlighted as attributes
 - **Snippets** — Nunjucks tags and AlpineJS directives
 - **YAML front matter** — Preserved unchanged for static site generators (Eleventy, Jekyll, Hugo)
-- **Performance** — esbuild bundled (107KB), cached options, static constants for fast repeated saves
+- **Performance** — esbuild bundled (108KB), cached options, static constants for fast repeated saves
 
 ## Supported Extensions
 

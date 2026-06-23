@@ -131,12 +131,27 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
   const result: string[] = [];
   let njkDepth = 0;
   let insideHtmlTag = false;
+  let insideNjkTag = false;
+  let njkTagBaseIndent = 0;
 
   for (const line of lines) {
     const trimmed = line.trim();
 
     if (!trimmed) {
       result.push("");
+      continue;
+    }
+
+    const hasNjkOpen = trimmed.includes("{%") || trimmed.includes("{%-");
+    const hasNjkClose = trimmed.includes("%}") || trimmed.includes("-%}");
+
+    if (insideNjkTag) {
+      if (hasNjkClose) {
+        insideNjkTag = false;
+        result.push(" ".repeat(njkTagBaseIndent) + trimmed);
+      } else {
+        result.push(" ".repeat(njkTagBaseIndent + indentSize) + trimmed);
+      }
       continue;
     }
 
@@ -150,12 +165,19 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
     }
 
     const currentIndent = line.match(/^\s*/)?.[0].length ?? 0;
+    const targetIndent = currentIndent + njkDepth * indentSize;
 
     if (isNjkOnly) {
       const depthOffset = isSameLevel ? Math.max(0, njkDepth - 1) : njkDepth;
-      result.push(" ".repeat(currentIndent + depthOffset * indentSize) + trimmed);
+      const indent = currentIndent + depthOffset * indentSize;
+      result.push(" ".repeat(indent) + trimmed);
+
+      if (hasNjkOpen && !hasNjkClose) {
+        insideNjkTag = true;
+        njkTagBaseIndent = indent;
+      }
     } else {
-      result.push(" ".repeat(currentIndent + njkDepth * indentSize) + trimmed);
+      result.push(" ".repeat(targetIndent) + trimmed);
     }
 
     if (isOpening && !isClosing && !insideHtmlTag) {
