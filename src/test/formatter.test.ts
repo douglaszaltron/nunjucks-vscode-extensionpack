@@ -50,7 +50,7 @@ describe("formatText", () => {
     });
 
     it("is stable on complex nested template", () => {
-      const src = `<nav><ul>{% for item in items %}<li><a href="{{ item.url }}">{{ item.label }}</a>{% if item.children %}<ul>{% for child in item.children %}<li><a href="{{ child.url }}">{{ child.label }}</a></li>{% endfor %}</ul>{% endif %}</li>{% endfor %}</ul></nav>`;
+      const src = `<nav><ul>{% for item in items %}<li><div><a href="{{ item.url }}">{{ item.label }}</a></div>{% if item.children %}<ul>{% for child in item.children %}<li><div><a href="{{ child.url }}">{{ child.label }}</a></div></li>{% endfor %}</ul>{% endif %}</li>{% endfor %}</ul></nav>`;
       assert.strictEqual(fmt(src), fmt(fmt(src)));
     });
   });

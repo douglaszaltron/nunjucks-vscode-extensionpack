@@ -137,6 +137,8 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
   let njkDepth = 0;
   let htmlDepth = 0;
   let insideHtmlTag = false;
+  let insideHtmlTagBaseIndent = 0;
+  let insideHtmlTagIsVoid = false;
   let insideNjkTag = false;
   let njkTagBaseIndent = 0;
 
@@ -162,9 +164,38 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
     }
 
     if (insideHtmlTag) {
-      result.push(" ".repeat((njkDepth + htmlDepth) * indentSize) + trimmed);
-      if (trimmed.includes(">")) {
-        insideHtmlTag = false;
+      if (trimmed.startsWith(">")) {
+        const rest = trimmed.slice(1).trim();
+        const closeIndent = insideHtmlTagIsVoid
+          ? insideHtmlTagBaseIndent
+          : insideHtmlTagBaseIndent + indentSize;
+
+        if (rest) {
+          result.push(" ".repeat(closeIndent) + ">");
+          insideHtmlTag = false;
+          const closeMatch = rest.match(/^(.*?)\s*(<\/[a-zA-Z][a-zA-Z0-9-]*\s*>)\s*$/);
+          if (closeMatch) {
+            const content = closeMatch[1].trim();
+            const closingTag = closeMatch[2];
+            if (content) {
+              result.push(" ".repeat((njkDepth + htmlDepth) * indentSize) + content);
+            }
+            htmlDepth = Math.max(0, htmlDepth - 1);
+            result.push(" ".repeat((njkDepth + htmlDepth) * indentSize) + closingTag);
+          } else {
+            result.push(" ".repeat((njkDepth + htmlDepth) * indentSize) + rest);
+            const closingTags = (rest.match(/<\/[a-zA-Z][a-zA-Z0-9-]*/g) ?? []).length;
+            htmlDepth = Math.max(0, htmlDepth - closingTags);
+          }
+        } else {
+          result.push(" ".repeat(closeIndent) + ">");
+          insideHtmlTag = false;
+        }
+      } else {
+        result.push(" ".repeat(insideHtmlTagBaseIndent + indentSize) + trimmed);
+        if (trimmed.includes(">")) {
+          insideHtmlTag = false;
+        }
       }
       continue;
     }
@@ -194,12 +225,22 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
 
     result.push(" ".repeat(outputIndent) + trimmed);
 
+    if (!/^<\/[a-zA-Z]/.test(trimmed) && !isNjkOnly) {
+      const endClose = trimmed.match(/<\/([a-zA-Z][a-zA-Z0-9-]*)\s*>$/);
+      if (endClose) {
+        const closeTagName = endClose[1].toLowerCase();
+        if (!new RegExp(`<${closeTagName}\\b`, "i").test(trimmed)) {
+          htmlDepth = Math.max(0, htmlDepth - 1);
+        }
+      }
+    }
+
     if (isNjkOnly && hasNjkOpen && !hasNjkClose) {
       insideNjkTag = true;
       njkTagBaseIndent = outputIndent;
     }
 
-    if (isOpening && !isClosing) {
+    if (isOpening && !isClosing && !isInlineConditional) {
       njkDepth++;
     }
 
@@ -216,6 +257,8 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
         }
         if (!trimmed.includes(">")) {
           insideHtmlTag = true;
+          insideHtmlTagBaseIndent = outputIndent;
+          insideHtmlTagIsVoid = VOID_ELEMENTS.has(tagName);
         }
       }
     }
@@ -268,7 +311,7 @@ export function formatText(
     const beautified = beautifyHtml(input, buildOptions(opts, settings));
     const indent = opts.insertSpaces ? (opts.tabSize || 2) : 1;
 
-    let result = beautified;
+    let result = beautified.replace(/>(<)(?=[a-zA-Z/])/g, ">\n<");
 
     if (settings.preprocessNunjucks && body.includes("{%")) {
       result = fixNunjucksIndent(result, indent);
