@@ -174,6 +174,35 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
   return result.join("\n");
 }
 
+function fixMultilineAttributes(source: string, indentSize: number): string {
+  const lines = source.split("\n");
+  const result: string[] = [];
+  let inMultilineAttr = false;
+  let attrBaseIndent = 0;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const currentIndent = line.match(/^\s*/)?.[0].length ?? 0;
+
+    if (inMultilineAttr) {
+      if (trimmed.startsWith("}") || trimmed.includes('}"') || trimmed.includes('">')) {
+        inMultilineAttr = false;
+        result.push(" ".repeat(attrBaseIndent) + trimmed);
+      } else {
+        result.push(" ".repeat(attrBaseIndent + indentSize) + trimmed);
+      }
+    } else if (trimmed.endsWith('="{')) {
+      inMultilineAttr = true;
+      attrBaseIndent = currentIndent;
+      result.push(line);
+    } else {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
 export function formatText(
   source: string,
   opts: FormattingOptions,
@@ -187,19 +216,22 @@ export function formatText(
       : body;
 
     const beautified = beautifyHtml(input, buildOptions(opts, settings));
+    const indent = opts.insertSpaces ? (opts.tabSize || 2) : 1;
+
+    let result = beautified;
 
     if (settings.preprocessNunjucks && body.includes("{%")) {
-      const indent = opts.insertSpaces ? (opts.tabSize || 2) : 1;
-      let result = fixNunjucksIndent(beautified, indent);
+      result = fixNunjucksIndent(result, indent);
       let prev = "";
       while (result !== prev) {
         prev = result;
         result = result.replace(RE.INLINE_CHAIN, "$1$2");
       }
-      return frontMatter + result;
     }
 
-    return frontMatter + beautified;
+    result = fixMultilineAttributes(result, indent);
+
+    return frontMatter + result;
   } catch {
     return source;
   }
