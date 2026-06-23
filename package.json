@@ -41,6 +41,9 @@
     }
   },
   "main": "./out/extension",
+  "activationEvents": [
+    "onLanguage:njk"
+  ],
   "contributes": {
     "snippets": [
       {
