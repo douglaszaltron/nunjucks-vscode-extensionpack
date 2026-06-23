@@ -3,7 +3,7 @@
 ## Project Overview
 
 VS Code extension for formatting Nunjucks templates with AlpineJS directive
-support. Built on js-beautify with idempotent Nunjucks preprocessing.
+support. Built on dprint + markup_fmt (Rust-based WASM). Native Nunjucks/Jinja/Twig/Astro/Vue/Svelte parsing.
 Published to VS Code Marketplace.
 
 ## File Structure
@@ -18,6 +18,7 @@ scripts/
 assets/
   syntaxes/njk.json      TextMate grammar (Nunjucks + HTML5 + AlpineJS)
   snippets/snippets.json Nunjucks + AlpineJS snippets
+  wasm/markup_fmt.wasm   dprint markup_fmt plugin (vendored)
   languages/configuration.json
 ```
 
@@ -67,5 +68,5 @@ Flow:
 
 - Minimum VS Code: ^1.82.0
 - Target: Node.js 18 (VS Code extension host)
-- File extensions: .njk, .nunjucks only (official Nunjucks standard)
+- File extensions: .njk, .nunjucks, .astro, .vue, .svelte, .twig, .jinja, .jinja2
 - Nunjucks spec: https://mozilla.github.io/nunjucks/templating.html

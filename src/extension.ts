@@ -2,19 +2,21 @@ import * as vscode from "vscode";
 import { formatText, DEFAULT_SETTINGS, invalidateOptionCache } from "./formatter";
 import type { FormatterSettings } from "./formatter";
 
-const LANGUAGE_ID = "njk";
+const LANGUAGE_IDS = ["njk", "astro", "vue", "svelte", "twig", "jinja"];
 
 let settings: FormatterSettings | null = null;
 
 function loadSettings(): FormatterSettings {
   const config = vscode.workspace.getConfiguration("nunjucksFormatter");
   return {
-    preprocessNunjucks: config.get("preprocessNunjucks", DEFAULT_SETTINGS.preprocessNunjucks),
-    wrapLineLength: config.get("wrapLineLength", DEFAULT_SETTINGS.wrapLineLength),
-    wrapAttributes: config.get("wrapAttributes", DEFAULT_SETTINGS.wrapAttributes),
+    printWidth: config.get("printWidth", DEFAULT_SETTINGS.printWidth),
+    tabWidth: config.get("tabWidth", DEFAULT_SETTINGS.tabWidth),
+    useTabs: config.get("useTabs", DEFAULT_SETTINGS.useTabs),
+    maxAttrsPerLine: config.get("maxAttrsPerLine", DEFAULT_SETTINGS.maxAttrsPerLine),
+    closingBracketSameLine: config.get("closingBracketSameLine", DEFAULT_SETTINGS.closingBracketSameLine),
+    singleAttrSameLine: config.get("singleAttrSameLine", DEFAULT_SETTINGS.singleAttrSameLine),
+    selfClosingVoid: config.get("selfClosingVoid", DEFAULT_SETTINGS.selfClosingVoid),
     endWithNewline: config.get("endWithNewline", DEFAULT_SETTINGS.endWithNewline),
-    preserveNewlines: config.get("preserveNewlines", DEFAULT_SETTINGS.preserveNewlines),
-    maxPreserveNewlines: config.get("maxPreserveNewlines", DEFAULT_SETTINGS.maxPreserveNewlines),
   };
 }
 
@@ -40,7 +42,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
   const formatProvider: vscode.DocumentFormattingEditProvider = {
     provideDocumentFormattingEdits(doc, opts) {
       const text = doc.getText();
-      const formatted = formatText(text, opts, getSettings());
+      const formatted = formatText(text, opts, getSettings(), doc.fileName);
       if (formatted === text) return [];
       return [new vscode.TextEdit(fullRange(doc), formatted)];
     },
@@ -49,17 +51,20 @@ export function activate(ctx: vscode.ExtensionContext): void {
   const rangeProvider: vscode.DocumentRangeFormattingEditProvider = {
     provideDocumentRangeFormattingEdits(doc, range, opts) {
       const text = doc.getText(range);
-      const formatted = formatText(text, opts, getSettings());
+      const formatted = formatText(text, opts, getSettings(), doc.fileName);
       if (formatted === text) return [];
       return [new vscode.TextEdit(range, formatted)];
     },
   };
 
-  ctx.subscriptions.push(
-    reload,
-    vscode.languages.registerDocumentFormattingEditProvider(LANGUAGE_ID, formatProvider),
-    vscode.languages.registerDocumentRangeFormattingEditProvider(LANGUAGE_ID, rangeProvider)
-  );
+  for (const lang of LANGUAGE_IDS) {
+    ctx.subscriptions.push(
+      vscode.languages.registerDocumentFormattingEditProvider(lang, formatProvider),
+      vscode.languages.registerDocumentRangeFormattingEditProvider(lang, rangeProvider)
+    );
+  }
+
+  ctx.subscriptions.push(reload);
 }
 
 export function deactivate(): void {

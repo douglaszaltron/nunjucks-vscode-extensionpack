@@ -1,16 +1,24 @@
 # Nunjucks Formatter
 
-HTML formatter for Nunjucks templates with AlpineJS support.
+Fast HTML formatter for Nunjucks templates with AlpineJS directives.
 
 ## Features
 
 **Formatting**
-- Nunjucks block indentation based on nesting depth (`{% macro %}`, `{% if %}`, `{% for %}`)
+- Native Nunjucks/Jinja/Twig block parsing (`{% macro %}`, `{% if %}`, `{% for %}`)
 - Inline conditionals kept on a single line (`{% if x %}val{% endif %}`)
-- Multi-line `{% set %}` object literals stay stable across repeated saves
 - Multi-line AlpineJS `:class="{ ... }"` attributes properly indented
 - YAML front matter preserved for Eleventy, Jekyll, Hugo
 - Full document and range formatting
+- Built on dprint + markup_fmt (Rust-based WASM) - fast and idempotent
+
+**Supported File Types**
+- `.njk`, `.nunjucks` - Nunjucks
+- `.astro` - Astro
+- `.vue` - Vue/Nuxt
+- `.svelte` - Svelte/SvelteKit
+- `.twig` - Twig
+- `.jinja`, `.jinja2` - Jinja
 
 **Developer Experience**
 - Syntax highlighting for Nunjucks tags and expressions
@@ -55,8 +63,7 @@ Set as your default formatter for `.njk` files:
   },
   "emmet.includeLanguages": {
     "njk": "html"
-  },
-  "nunjucksFormatter.maxPreserveNewlines": 0
+  }
 }
 ```
 
@@ -66,11 +73,13 @@ All settings live under the `nunjucksFormatter.*` namespace.
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `preprocessNunjucks` | `true` | Move Nunjucks block tags onto their own lines before formatting. |
-| `wrapAttributes` | `"force-expand-multiline"` | HTML attribute wrapping strategy. |
-| `wrapLineLength` | `0` | Maximum line length. `0` = unlimited. |
-| `preserveNewlines` | `true` | Preserve existing blank lines. |
-| `maxPreserveNewlines` | `1` | Maximum consecutive blank lines to preserve. |
+| `printWidth` | `80` | Maximum line length. |
+| `tabWidth` | `2` | Number of spaces per indentation level. Use `0` for tabs. |
+| `useTabs` | `false` | Use tabs for indentation. |
+| `maxAttrsPerLine` | `1` | Maximum number of attributes per line. |
+| `closingBracketSameLine` | `true` | Place closing bracket on same line as last attribute. |
+| `singleAttrSameLine` | `false` | Allow single attribute on same line as opening tag. |
+| `selfClosingVoid` | `true` | Use self-closing syntax for void elements (`<br />`). |
 | `endWithNewline` | `true` | Ensure file ends with a newline. |
 
 ## Snippets

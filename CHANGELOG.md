@@ -7,27 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Major Changes
+- **Replaced js-beautify with dprint + markup_fmt** — Native AST-based parsing for Nunjucks, Jinja, Twig, Astro, Vue, Svelte templates. Faster and more accurate.
+- Added support for `.astro`, `.vue`, `.svelte`, `.twig`, `.jinja`, `.jinja2` files.
+- Settings API changed — see migration below.
+
+### Migration from v0.3.x
+
+| Old Setting | New Setting | Notes |
+| --- | --- | --- |
+| `preprocessNunjucks` | (removed) | No longer needed - markup_fmt handles natively |
+| `wrapAttributes` | `maxAttrsPerLine` + `closingBracketSameLine` | Different model |
+| `wrapLineLength` | `printWidth` | Same concept |
+| `preserveNewlines` | (removed) | Handled by markup_fmt |
+| `maxPreserveNewlines` | (removed) | Handled by markup_fmt |
+
 ### Added
-- Nunjucks block depth tracking — `{% macro %}`, `{% if %}`, `{% for %}`, `{% block %}` content now properly indented based on nesting depth.
-- Inline conditional joining — `{% if x %}val{% endif %}` and `{% if x %}v1{% elif y %}v2{% else %}v3{% endif %}` kept on a single line.
+- Native Nunjucks/Jinja/Twig block parsing (`{% macro %}`, `{% if %}`, `{% for %}`)
+- Inline conditional joining — `{% if x %}val{% endif %}` kept on a single line.
 - Multi-line AlpineJS object attribute indentation — `:class="{ ... }"` content indented relative to the attribute.
-- Multi-line Nunjucks tag preservation — `{% set x = { ... } %}` content stays idempotent across repeated saves.
-- `insideHtmlTag` tracking — `{% if %}` used as conditional HTML attributes follows attribute indentation, not block depth.
-- AGENTS.md following [agents.md](https://agents.md/) standard.
+- YAML front matter preserved for Eleventy, Jekyll, Hugo
+- Settings: `tabWidth`, `useTabs`, `closingBracketSameLine`, `singleAttrSameLine`, `selfClosingVoid`
 
 ### Performance
-- Hoisted static arrays (`templating`, `unformatted`, `content_unformatted`) to module-level constants to eliminate per-call allocations.
-- Cached `HTMLBeautifyOptions` object — rebuilt only when `tabSize`, `insertSpaces`, or settings change.
-- Skip `TextEdit` creation when formatted output equals input — avoids unnecessary VS Code DOM updates.
-- Early exit front matter check with `startsWith` before regex.
-- esbuild bundling — 627 files, 1.47MB reduced to 13 files, 107KB (93% reduction).
-
-### Changed
-- ESLint flat config (`eslint.config.js`) with `@typescript-eslint`.
-- `npm run watch` runs `tsc --noEmit --watch` + `esbuild --watch` in parallel via `concurrently`.
-- Two-job release workflow — changesets auto version + commit-message triggered publish.
-- Preprocess loop for 3+ adjacent Nunjucks tags.
-- Removed redundant `"use strict"` (strict mode is default in ES2022).
+- Built on dprint + markup_fmt (Rust-based WASM) — fast and idempotent
+- esbuild bundling — extension size optimized
 
 ### Removed
 - `publish.yml` — old manual version workflow, replaced by changesets.
