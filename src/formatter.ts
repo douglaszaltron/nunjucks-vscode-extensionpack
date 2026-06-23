@@ -42,6 +42,11 @@ const NJK_CLOSING = /\{%[-]?\s*end(if|for|block|macro|filter|raw|verbatim|call|e
 const NJK_SAMELEVEL = /\{%[-]?\s*(else|elif)\b/;
 const NJK_ONLY_LINE = /^\s*\{%[-]?\s*(?:if|elif|else|for|block|macro|filter|raw|verbatim|call|asyncEach|asyncAll|end\w+|set|include|import|from|extends)\b/;
 
+const VOID_ELEMENTS = new Set([
+  "area", "base", "br", "col", "embed", "hr", "img", "input",
+  "link", "meta", "param", "source", "track", "wbr",
+]);
+
 const TEMPLATING = ["django"];
 const UNFORMATTED: string[] = [];
 const CONTENT_UNFORMATTED = ["pre", "textarea", "code"];
@@ -130,6 +135,7 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
   const lines = source.split("\n");
   const result: string[] = [];
   let njkDepth = 0;
+  let htmlDepth = 0;
   let insideHtmlTag = false;
   let insideNjkTag = false;
   let njkTagBaseIndent = 0;
@@ -142,8 +148,8 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
       continue;
     }
 
-    const hasNjkOpen = trimmed.includes("{%") || trimmed.includes("{%-");
-    const hasNjkClose = trimmed.includes("%}") || trimmed.includes("-%}");
+    const hasNjkOpen = trimmed.includes("{%");
+    const hasNjkClose = trimmed.includes("%}");
 
     if (insideNjkTag) {
       if (hasNjkClose) {
@@ -155,41 +161,63 @@ function fixNunjucksIndent(source: string, indentSize: number): string {
       continue;
     }
 
+    if (insideHtmlTag) {
+      result.push(" ".repeat((njkDepth + htmlDepth) * indentSize) + trimmed);
+      if (trimmed.includes(">")) {
+        insideHtmlTag = false;
+      }
+      continue;
+    }
+
     const isClosing = NJK_CLOSING.test(trimmed);
     const isOpening = NJK_OPENING.test(trimmed);
     const isSameLevel = NJK_SAMELEVEL.test(trimmed);
-    const isNjkOnly = NJK_ONLY_LINE.test(trimmed) && !insideHtmlTag;
+    const isNjkOnly = NJK_ONLY_LINE.test(trimmed);
+    const isInlineConditional = isOpening && isClosing;
 
-    if (isClosing && !insideHtmlTag) {
+    if (isClosing && !isInlineConditional) {
       njkDepth = Math.max(0, njkDepth - 1);
     }
 
-    const currentIndent = line.match(/^\s*/)?.[0].length ?? 0;
-    const targetIndent = currentIndent + njkDepth * indentSize;
+    if (/^<\/[a-zA-Z]/.test(trimmed)) {
+      htmlDepth = Math.max(0, htmlDepth - 1);
+    }
+
+    let outputIndent: number;
 
     if (isNjkOnly) {
       const depthOffset = isSameLevel ? Math.max(0, njkDepth - 1) : njkDepth;
-      const indent = currentIndent + depthOffset * indentSize;
-      result.push(" ".repeat(indent) + trimmed);
-
-      if (hasNjkOpen && !hasNjkClose) {
-        insideNjkTag = true;
-        njkTagBaseIndent = indent;
-      }
+      outputIndent = (depthOffset + htmlDepth) * indentSize;
     } else {
-      result.push(" ".repeat(targetIndent) + trimmed);
+      outputIndent = (njkDepth + htmlDepth) * indentSize;
     }
 
-    if (isOpening && !isClosing && !insideHtmlTag) {
+    result.push(" ".repeat(outputIndent) + trimmed);
+
+    if (isNjkOnly && hasNjkOpen && !hasNjkClose) {
+      insideNjkTag = true;
+      njkTagBaseIndent = outputIndent;
+    }
+
+    if (isOpening && !isClosing) {
       njkDepth++;
     }
 
-    const openCount = (trimmed.match(/<[a-zA-Z]/g) ?? []).length;
-    const closeCount = (trimmed.match(/>/g) ?? []).length;
-    if (openCount > closeCount) {
-      insideHtmlTag = true;
-    } else if (closeCount > openCount || (closeCount === openCount && trimmed.includes(">"))) {
-      insideHtmlTag = false;
+    if (!isNjkOnly) {
+      const tagMatch = trimmed.match(/^<([a-zA-Z][a-zA-Z0-9-]*)/);
+      if (tagMatch) {
+        const tagName = tagMatch[1].toLowerCase();
+        if (!VOID_ELEMENTS.has(tagName)) {
+          const hasSelfClose = trimmed.endsWith("/>");
+          const hasMatchingClose = trimmed.includes(`</${tagName}`);
+          if (!hasSelfClose && !hasMatchingClose) {
+            htmlDepth++;
+          }
+        }
+        if (!trimmed.includes(">")) {
+          insideHtmlTag = true;
+        }
+      }
     }
   }
 
