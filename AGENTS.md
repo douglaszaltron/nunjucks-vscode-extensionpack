@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-VS Code extension for formatting Nunjucks templates (.njk, .nunjucks)
-with AlpineJS directive support. Built on js-beautify with idempotent
-Nunjucks preprocessing. Published to VS Code Marketplace.
+VS Code extension for formatting Nunjucks templates with AlpineJS directive
+support. Built on js-beautify with idempotent Nunjucks preprocessing.
+Published to VS Code Marketplace.
 
 ## File Structure
 
@@ -12,7 +12,7 @@ Nunjucks preprocessing. Published to VS Code Marketplace.
 src/
   formatter.ts           Pure formatting logic (zero VS Code dependency)
   extension.ts           VS Code wrapper (config cache, format providers)
-  test/formatter.test.ts 39 tests (plain mocha, no VS Code needed)
+  test/formatter.test.ts Mocha tests (no VS Code instance needed)
 scripts/
   package.js             Build pipeline (tsc + esbuild + vsce)
 assets/
@@ -25,16 +25,15 @@ assets/
 
 Always run before finishing a task:
 ```
-npm run lint     # ESLint (must pass)
-npm test         # tsc type check + 39 mocha tests
+npm run lint     # ESLint
+npm test         # tsc type check + mocha tests
 ```
 
 Other commands:
 ```
-npm run build    # Full build → dist/*.vsix (12 files, ~104KB)
+npm run build    # Full build → dist/*.vsix
 npm run watch    # Dev mode (tsc + esbuild in parallel)
 npm run clean    # Remove out/ and dist/
-npm run version  # Changeset version bump (CI only)
 ```
 
 ## Code Style
@@ -42,29 +41,16 @@ npm run version  # Changeset version bump (CI only)
 - TypeScript strict mode, ES2022 target
 - 2-space indentation, UTF-8, LF line endings
 - No comments unless explicitly requested
-- ESLint flat config (eslint.config.js)
-- No "use strict" (strict mode is default in ES2022)
-- Always run `npm run lint && npm test` before committing
 
 ## Testing
 
-- Tests run WITHOUT VS Code instance (plain mocha, ~25ms)
-- Tests import directly from `formatter.ts` — no mocking needed
-- Verify idempotency for new formatting features: `format(format(x)) === format(x)`
+- Verify idempotency for new features: `format(format(x)) === format(x)`
 - Add tests for any new formatting behavior
-- All 39 tests must pass before PR
 
 ## Commit Convention
 
-Conventional commits only:
 ```
-feat:     new feature
-fix:      bug fix
-perf:     performance improvement
-refactor: code restructuring
-chore:    maintenance
-docs:     documentation
-ci:       CI/CD changes
+feat: fix: perf: refactor: chore: docs: ci:
 ```
 
 ## CI/CD
@@ -76,17 +62,10 @@ Flow:
 2. `changeset-check.yml` validates changeset exists
 3. Merge PR → `release.yml` creates "Version Packages" PR
 4. Merge version PR → auto publish to VS Code Marketplace
-5. Publish job: lint → test → bundle → vsce publish → tag → GitHub Release
-
-## Dependencies
-
-Runtime: `js-beautify` (HTML formatter with django templating)
-Dev: `esbuild` (bundler), `mocha` (tests), `typescript` (compiler), `eslint` (linter)
 
 ## Constraints
 
 - Minimum VS Code: ^1.82.0
 - Target: Node.js 18 (VS Code extension host)
-- Output: esbuild bundle (~104KB, 12 files)
 - File extensions: .njk, .nunjucks only (official Nunjucks standard)
 - Nunjucks spec: https://mozilla.github.io/nunjucks/templating.html
