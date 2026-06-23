@@ -2,54 +2,50 @@
 
 HTML formatter for Nunjucks templates with AlpineJS support.
 
-Formats `.njk` and `.nunjucks` files using [js-beautify](https://github.com/beautify-web/js-beautify) with Nunjucks-aware preprocessing, block depth tracking, and inline conditional joining. Syntax highlighting, snippets, and AlpineJS directive support are included.
-
 ## Features
 
-- **Formatting** — Full document and range formatting via VS Code's built-in formatter API
-- **Nunjucks block indentation** — `{% macro %}`, `{% if %}`, `{% for %}` content properly indented based on nesting depth
-- **Inline conditionals** — `{% if x %}val{% endif %}` and `{% if %}v1{% elif %}v2{% else %}v3{% endif %}` kept on a single line
-- **Multi-line `{% set %}`** — Object literals inside `{% set x = { ... } %}` stay stable across repeated saves
-- **AlpineJS support** — Multi-line `:class="{ ... }"` object attributes properly indented
-- **Syntax highlighting** — Nunjucks tags (`{% %}`, `{{ }}`, `{# #}`) with expression support
-- **AlpineJS highlighting** — Directives (`x-*`, `:*`, `@*`) are highlighted as attributes
-- **Snippets** — Nunjucks tags and AlpineJS directives
-- **YAML front matter** — Preserved unchanged for static site generators (Eleventy, Jekyll, Hugo)
-- **Performance** — esbuild bundled (108KB), cached options, static constants for fast repeated saves
+**Formatting**
+- Nunjucks block indentation based on nesting depth (`{% macro %}`, `{% if %}`, `{% for %}`)
+- Inline conditionals kept on a single line (`{% if x %}val{% endif %}`)
+- Multi-line `{% set %}` object literals stay stable across repeated saves
+- Multi-line AlpineJS `:class="{ ... }"` attributes properly indented
+- YAML front matter preserved for Eleventy, Jekyll, Hugo
+- Full document and range formatting
 
-## Supported Extensions
+**Developer Experience**
+- Syntax highlighting for Nunjucks tags and expressions
+- AlpineJS directive highlighting (`x-*`, `:*`, `@*`)
+- Snippets for Nunjucks tags and AlpineJS directives
+- Lightweight and responsive on repeated saves
 
+## Before / After
+
+Before:
+```njk
+{% macro render(img) %}{% if img %}<img src="{{ img.src }}">{{ img.alt }}{% endif %}{% endmacro %}
 ```
-.njk
-.nunjucks
+
+After:
+```njk
+{% macro render(img) %}
+  {% if img %}
+    <img src="{{ img.src }}">
+    {{ img.alt }}
+  {% endif %}
+{% endmacro %}
 ```
 
-## Formatting
+Inline conditionals stay on one line:
+```njk
+<img
+  {% if fetchpriority %}fetchpriority="{{ fetchpriority }}"{% endif %}
+  {% if class %}class="{{ class }}"{% endif %}
+>
+```
 
-Run **Format Document** (`Shift+Alt+F` on Windows/Linux, `Shift+Option+F` on macOS) or **Format Selection** (`Ctrl+K Ctrl+F`).
+## Getting Started
 
-Block-level Nunjucks tags (`{% if %}`, `{% for %}`, `{% block %}`, etc.) are automatically placed on their own lines and indented based on nesting depth. Content inside `{% macro %}`, `{% if %}`, `{% for %}` is properly indented relative to the block.
-
-Inline conditionals like `{% if x %}attribute="value"{% endif %}` and `{% if x %}v1{% elif y %}v2{% else %}v3{% endif %}` are kept on a single line. Inline Nunjucks inside attributes (e.g. `class="{% if active %}on{% endif %}"`) is left untouched.
-
-Multi-line AlpineJS object attributes like `:class="{ ... }"` have their content indented relative to the attribute name.
-
-YAML front matter (delimited by `---`) at the start of a file is preserved unchanged, making the formatter compatible with static site generators like Eleventy, Jekyll, and Hugo.
-
-## Configuration
-
-All settings live under the `nunjucksFormatter.*` namespace.
-
-| Setting | Default | Description |
-| --- | --- | --- |
-| `preprocessNunjucks` | `true` | Move Nunjucks block tags onto their own lines before formatting. |
-| `wrapAttributes` | `"force-expand-multiline"` | HTML attribute wrapping strategy. |
-| `wrapLineLength` | `0` | Maximum line length. `0` = unlimited. |
-| `preserveNewlines` | `true` | Preserve existing blank lines. |
-| `maxPreserveNewlines` | `1` | Maximum consecutive blank lines to preserve. |
-| `endWithNewline` | `true` | Ensure file ends with a newline. |
-
-### Recommended Settings
+Set as your default formatter for `.njk` files:
 
 ```jsonc
 {
@@ -64,9 +60,23 @@ All settings live under the `nunjucksFormatter.*` namespace.
 }
 ```
 
+## Configuration
+
+All settings live under the `nunjucksFormatter.*` namespace.
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `preprocessNunjucks` | `true` | Move Nunjucks block tags onto their own lines before formatting. |
+| `wrapAttributes` | `"force-expand-multiline"` | HTML attribute wrapping strategy. |
+| `wrapLineLength` | `0` | Maximum line length. `0` = unlimited. |
+| `preserveNewlines` | `true` | Preserve existing blank lines. |
+| `maxPreserveNewlines` | `1` | Maximum consecutive blank lines to preserve. |
+| `endWithNewline` | `true` | Ensure file ends with a newline. |
+
 ## Snippets
 
-### Nunjucks
+<details>
+<summary>Nunjucks snippets (25)</summary>
 
 | Prefix | Output |
 | --- | --- |
@@ -96,7 +106,10 @@ All settings live under the `nunjucksFormatter.*` namespace.
 | `asyncEach` | `{% asyncEach %} / {% endeach %}` |
 | `asyncAll` | `{% asyncAll %} / {% endall %}` |
 
-### AlpineJS
+</details>
+
+<details>
+<summary>AlpineJS snippets (17)</summary>
 
 | Prefix | Output |
 | --- | --- |
@@ -123,6 +136,8 @@ All settings live under the `nunjucksFormatter.*` namespace.
 | `$dispatch` | `$dispatch('event', detail)` |
 | `$nextTick` | `$nextTick(() => { })` |
 | `$watch` | `$watch('property', callback)` |
+
+</details>
 
 ## Installation
 
